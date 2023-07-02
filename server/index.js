@@ -5,26 +5,24 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { Server } from "socket.io";
 import net from "net";
-import { Console, time } from "console";
+
+
 
 const app = express();
+const server = http.createServer(app);
+const socket_io_server = new Server(server,{
+  cors: {
+    origin: "http://localhost:5000",
+    methods: ["GET", "POST"]
+  }
+});
+
+// CONNECTION WITH MARKET DATA STREAM SERVER
+const tcpClient = new net.Socket();
 
 dotenv.config();
 
-// app.use(bodyParser.json({ limit: "30mb", extended: true }));
-// app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-// app.use(cors());
-function readInt64BEasFloat(buffer, offset) {
-  var low = readInt32BE(buffer, offset + 4);
-  var n = readInt32BE(buffer, offset) * 4294967296.0 + low;
-  if (low < 0) n += 4294967296;
-  return n;
-}
-// CONNECTION WITH MARKET DATA STREAM SERVER
-const tcpClient = new net.Socket();
-// tcpClient.setEncoding('ucs-2')
-
-tcpClient.connect(3000, "localhost", () => {
+tcpClient.connect(8000, "localhost", () => {
   console.log("Connected to TCP server.");
   tcpClient.write(Buffer.from([0x41]));
 
@@ -54,27 +52,23 @@ tcpClient.connect(3000, "localhost", () => {
       console.log({
         "packetLength": packetLength.readInt32LE(0),
         "tradingSymbol": tradingSymbol.toString('utf8'),
-        "sequnceNumber": sequnceNumber.readBigInt64LE(),
+        "sequnceNumber":Number(sequnceNumber.readBigInt64LE()),
         "timeStamp": date.toISOString(),
-        "LTP": LTP.readBigInt64LE(),
-        "LTQ": LTQ.readBigInt64LE(),
-        "volume": volume.readBigInt64LE(),
-        "bidPrice": bidPrice.readBigInt64LE(),
-        "bidQty": bidQty.readBigInt64LE(),
-        "askPrice": askPrice.readBigInt64LE(),
-        "askQuantity": askQuantity.readBigInt64LE(),
-        "OI": OI.readBigInt64LE(),
-        "prevClosePrice": prevClosePrice.readBigInt64LE(),
-        "prevCloseInterest": prevCloseInterest.readBigInt64LE()
+        "LTP":Number( LTP.readBigInt64LE()),
+        "LTQ":Number( LTQ.readBigInt64LE()),
+        "volume":Number( volume.readBigInt64LE()),
+        "bidPrice": Number(bidPrice.readBigInt64LE()),
+        "bidQty": Number(bidQty.readBigInt64LE()),
+        "askPrice":Number( askPrice.readBigInt64LE()),
+        "askQuantity":Number( askQuantity.readBigInt64LE()),
+        "OI":Number( OI.readBigInt64LE()),
+        "prevClosePrice":Number( prevClosePrice.readBigInt64LE()),
+        "prevCloseInterest": Number(prevCloseInterest.readBigInt64LE())
   
       });
     }
 
     i = i + 130;
-    try {
-    } catch (error) {
-      console.log("Error in ",error);
-    }
     
     // console.log("tcpData", data[0].toString(32).length);
   });
@@ -85,30 +79,20 @@ tcpClient.connect(3000, "localhost", () => {
   });
 });
 
-// SOCKET.IO SERVER FOR PUSING UPDATES TO FRONTEND
-const server = http.createServer(app);
-const socket_io_server = new Server({
-  cors: {
-    origin: "http://localhost:3000",
-  },
+socket_io_server.listen(5000, (socket) => {
+  console.log("Socket.io server listening on port 5000");
+  socket.emit("data", { message: "Hello from server!" });
+    socket.on("disconnect", () => {
+      console.log("Socket.io client disconnected.");
+    });
+
 });
 
-socket_io_server.on("connection", (socket) => {
-  console.log("Socket.io client connected.");
-
-  socket.on("socketData", (data) => {
-    tcpClient.write(data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Socket.io client disconnected.");
-  });
-});
 
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
 
-server.listen(process.env.PORT, () => {
-  console.log(`listening on port:${process.env.PORT}`);
-});
+// server.listen(5000, () => {
+//   console.log(`listening on port:${process.env.PORT}`);
+// });

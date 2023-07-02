@@ -5,70 +5,85 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { Server } from "socket.io";
 import net from "net";
-import { Console } from "console";
-import { sequencer } from "./utils/PacketStreamHandler.js";
+
 
 const app = express();
-
+const server = http.createServer(app);
 dotenv.config();
 
-// app.use(bodyParser.json({ limit: "30mb", extended: true }));
-// app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
-// app.use(cors());
-
-// Structure of each TCP Packet
-// First field of length 4, packet length, is to be skipped
-const packetStructure = [4, 30, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
 
 // CONNECTION WITH MARKET DATA STREAM SERVER
 const tcpClient = new net.Socket();
-// tcpClient.setEncoding('utf16le')
-
-tcpClient.connect(8080, "localhost", () => {
+tcpClient.connect(process.env.DATA_STREAM_SERVER_PORT, "localhost", () => {
   console.log("Connected to TCP server.");
   tcpClient.write(Buffer.from([0x41]));
 
   // Event handler for receiving data from TCP server
   tcpClient.on("data", (data) => {
-    // Emit the received data as a Socket.io event
-    // ITERATING THROUGH BUFFER USING WHILE LOOP - !!NOT WORKING!!
-    let index = 0;
+    
     const packetSize = 130;
-    const extractedData = [];
-    while (index < data.length - 130) {
-      let packet = data.subarray(index, index + packetSize);
-      // if (index == 130 * 25) console.log("packet: ", packet.toString());
-      if (index == 130 * 25) console.log("packet: ", packet);
-      let start = 0;
-      for (let i = 0; i < packetStructure.length; i++) {
-        // console.log(`${size}, ${start}: ${packet.subarray(start, size)}`);
-        const element = packet.subarray(start, start + packetStructure[i]);
-        if (index == 130 * 25) {
-          console.log(`Start, end: ${start},${start + packetStructure[i]}`);
-          // console.log(`Element: ${element.toString()}`);
-          console.log(`Element: ${element}`);
-        }
+    const byteSize = 2;
+    let i = 0;
+    const transformedPackets = []
+    while(i<data.length-130) {
+      const packetLength = data.subarray(i, i+4);
+      const tradingSymbol = data.subarray(i+4, i+34);
+      const sequnceNumber = data.subarray(i+34, i+42);
+      const timeStamp = data.subarray(i+42, i+50);
+      const date = new Date(Number(timeStamp.readBigInt64LE()));
+      const LTP = data.subarray(i+50, i+58);
+      const LTQ = data.subarray(i+58, i+66);
+      const volume = data.subarray(i+66, i+74);
+      const bidPrice = data.subarray(i+74, i+82);
+      const bidQty = data.subarray(i+82, i+90);
+      const askPrice = data.subarray(i+90, i+98);
+      const askQuantity = data.subarray(i+98, i+106);
+      const OI = data.subarray(i+106, i+114);
+      const prevClosePrice = data.subarray(i+114, i+122);
+      const prevCloseInterest = data.subarray(i+122, i+130);
 
-        if (i == 0) {
-          extractedData.push(element.readInt32LE());
-        } else if (i == 1) {
-          extractedData.push(element.toString("utf8"));
-          // extractedData.push(packet.subarray(start, packetStructure[i]))
-        } else if (i == 3) {
-          const date = new Date(Number(element.readBigInt64LE()));
-          extractedData.push(date.toISOString());
-        } else {
-          extractedData.push(element.readBigInt64LE());
-          // extractedData.push(packet.subarray(start, packetStructure[i]))
-        }
-        start += packetStructure[i];
-      }
-      // console.log("extractedData: ", extractedData);
-      index += packetSize;
-      // sequencer(data)
+      transformedPackets.push({
+        packetLength: packetLength.readInt32LE(0),
+        tradingSymbol: tradingSymbol.toString('utf8'),
+        sequenceNumber:Number(sequnceNumber.readBigInt64LE()),
+        timeStamp: date.toISOString(),
+        LTP:Number( LTP.readBigInt64LE()),
+        LTQ:Number( LTQ.readBigInt64LE()),
+        volume:Number( volume.readBigInt64LE()),
+        bidPrice: Number(bidPrice.readBigInt64LE()),
+        bidQty: Number(bidQty.readBigInt64LE()),
+        askPrice:Number( askPrice.readBigInt64LE()),
+        askQuantity:Number( askQuantity.readBigInt64LE()),
+        OI:Number( OI.readBigInt64LE()),
+        prevClosePrice:Number( prevClosePrice.readBigInt64LE()),
+        prevCloseInterest: Number(prevCloseInterest.readBigInt64LE())
+      })
+      
+      // let packetObj = {
+      //   "packetLength": packetLength.readInt32LE(0),
+      //   "tradingSymbol": tradingSymbol.toString('utf8'),
+      //   "sequnceNumber":Number(sequnceNumber.readBigInt64LE()),
+      //   "timeStamp": date.toISOString(),
+      //   "LTP":Number( LTP.readBigInt64LE()),
+      //   "LTQ":Number( LTQ.readBigInt64LE()),
+      //   "volume":Number( volume.readBigInt64LE()),
+      //   "bidPrice": Number(bidPrice.readBigInt64LE()),
+      //   "bidQty": Number(bidQty.readBigInt64LE()),
+      //   "askPrice":Number( askPrice.readBigInt64LE()),
+      //   "askQuantity":Number( askQuantity.readBigInt64LE()),
+      //   "OI":Number( OI.readBigInt64LE()),
+      //   "prevClosePrice":Number( prevClosePrice.readBigInt64LE()),
+      //   "prevCloseInterest": Number(prevCloseInterest.readBigInt64LE())
+      // };
+      // console.log(packetObj);
+      i = i + 130;
     }
+    console.log(`transformedPackets.length: ${transformedPackets.length}`);
+    console.log(`transformedPackets: ${JSON.stringify(transformedPackets)}`);
+    console.log("Data received");
+    // console.log("tcpData", data[0].toString(32).length);
   });
-
+  
   // Event handler for TCP connection close
   tcpClient.on("close", () => {
     console.log("TCP connection closed.");
@@ -76,30 +91,28 @@ tcpClient.connect(8080, "localhost", () => {
 });
 
 
-// SOCKET.IO SERVER FOR PUSING UPDATES TO FRONTEND
-const server = http.createServer(app);
-const socket_io_server = new Server({
+// CONNECTION WITH CLIENT SIDE
+const socket_io_server = new Server(server,{
   cors: {
-    origin: "http://localhost:3000",
-  },
+    origin: "http://127.0.0.1:5173",
+    methods: ["GET", "POST"]
+  }
 });
 
-socket_io_server.on("connection", (socket) => {
-  console.log("Socket.io client connected.");
+socket_io_server.listen(process.env.PORT, (socket) => {
+  console.log("Socket.io server listening on port 5000");
+  socket.emit("data", { message: "Hello from server!" });
+    socket.on("disconnect", () => {
+      console.log("Socket.io client disconnected.");
+    });
 
-  socket.on("socketData", (data) => {
-    tcpClient.write(data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Socket.io client disconnected.");
-  });
 });
+
 
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
 
-server.listen(process.env.PORT, () => {
-  console.log(`listening on port:${process.env.PORT}`);
-});
+// server.listen(5000, () => {
+//   console.log(`listening on port:${process.env.PORT}`);
+// });

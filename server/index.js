@@ -31,43 +31,39 @@ tcpClient.connect(8080, "localhost", () => {
   // Event handler for receiving data from TCP server
   tcpClient.on("data", (data) => {
     // Emit the received data as a Socket.io event
-    // console.log('tcpData', data.toString('hex').match(/.{2}/g).reverse().join("").toString('utf16'));
-    // console.log('tcpData', data.toString('utf8').match(/.{2}/g).reverse().join(""));
-    // const val = data.readBigInt64LE();
-    // console.log('tcpData', val.toLocaleString());
-    // data = data.toString('utf16le')
-
-    // for (let i = 0; i < data.length; i+=130) {
-    //   const packet = data.subarray(i,i+30);
-
-    // }
-
     // ITERATING THROUGH BUFFER USING WHILE LOOP - !!NOT WORKING!!
     let index = 0;
     const packetSize = 130;
-    while (index < data.length) {
+    const extractedData = [];
+    while (index < data.length - 130) {
       let packet = data.subarray(index, index + packetSize);
-      // if(index==130*10)
-      //   console.log("packet: ", packet.toString());
-      const extractedData = [];
+      // if (index == 130 * 25) console.log("packet: ", packet.toString());
+      if (index == 130 * 25) console.log("packet: ", packet);
       let start = 0;
       for (let i = 0; i < packetStructure.length; i++) {
         // console.log(`${size}, ${start}: ${packet.subarray(start, size)}`);
-        let end = start + packetStructure[i];
-        if (i == 1) {
-          extractedData.push(
-            packet.subarray(start, end).toString()
-          );
+        const element = packet.subarray(start, start + packetStructure[i]);
+        if (index == 130 * 25) {
+          console.log(`Start, end: ${start},${start + packetStructure[i]}`);
+          // console.log(`Element: ${element.toString()}`);
+          console.log(`Element: ${element}`);
+        }
+
+        if (i == 0) {
+          extractedData.push(element.readInt32LE());
+        } else if (i == 1) {
+          extractedData.push(element.toString("utf8"));
           // extractedData.push(packet.subarray(start, packetStructure[i]))
+        } else if (i == 3) {
+          const date = new Date(Number(element.readBigInt64LE()));
+          extractedData.push(date.toISOString());
         } else {
-          extractedData.push(
-            packet.subarray(start, end).toString()
-          );
+          extractedData.push(element.readBigInt64LE());
           // extractedData.push(packet.subarray(start, packetStructure[i]))
         }
-        start = end;
+        start += packetStructure[i];
       }
-      console.log("extractedData: ", extractedData);
+      // console.log("extractedData: ", extractedData);
       index += packetSize;
       // sequencer(data)
     }
@@ -78,6 +74,7 @@ tcpClient.connect(8080, "localhost", () => {
     console.log("TCP connection closed.");
   });
 });
+
 
 // SOCKET.IO SERVER FOR PUSING UPDATES TO FRONTEND
 const server = http.createServer(app);

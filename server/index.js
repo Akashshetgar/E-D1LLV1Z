@@ -12,7 +12,7 @@ const app = express();
 const server = http.createServer(app);
 const socket_io_server = new Server(server,{
   cors: {
-    origin: "http://localhost:5000",
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"]
   }
 });
@@ -66,9 +66,9 @@ tcpClient.connect(8000, "localhost", () => {
         "prevCloseInterest": Number(prevCloseInterest.readBigInt64LE())
   
       });
+      i = i + 130;
     }
 
-    i = i + 130;
     
     // console.log("tcpData", data[0].toString(32).length);
   });
@@ -79,8 +79,8 @@ tcpClient.connect(8000, "localhost", () => {
   });
 });
 
-socket_io_server.listen(5000, (socket) => {
-  console.log("Socket.io server listening on port 5000");
+socket_io_server.on('connection', (socket) => {
+  console.log("client connected");
   socket.emit("data", { message: "Hello from server!" });
     socket.on("disconnect", () => {
       console.log("Socket.io client disconnected.");
@@ -93,6 +93,6 @@ app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
 
-// server.listen(5000, () => {
-//   console.log(`listening on port:${process.env.PORT}`);
-// });
+server.listen(5000, () => {
+  console.log(`listening on port:${process.env.PORT}`);
+});

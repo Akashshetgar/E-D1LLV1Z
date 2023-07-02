@@ -43,3 +43,10 @@
     margin-top: 15px;
     margin-left: 15px;
 }
+
+.tableContainer {
+    margin: 0 auto;
+    max-width: 800px;
+    width: 100%;
+}
+  

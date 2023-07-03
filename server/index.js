@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { Server } from "socket.io";
 import net from "net";
 import  calculate_iv  from "./utils/script.js";
+import mongoose from "mongoose";
 
 const app = express();
 const server = http.createServer(app);
@@ -184,3 +185,13 @@ socket_io_server.on('connection', (socket) => {
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
+
+mongoose
+  .connect(process.env.DB_CONNECTION_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Mongo connect ho gaya"))
+  .catch((err) => console.log(err.message));
+
+  // app.listen(PORT, () => console.log(`Server running on port: ${PORT}`))

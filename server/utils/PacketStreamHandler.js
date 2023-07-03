@@ -30,7 +30,7 @@ export const handleNetStream = (data) => {
     const askQuantity = data.subarray(i + 98, i + 106);
     const OI = data.subarray(i + 106, i + 114);
     const prevClosePrice = data.subarray(i + 114, i + 122);
-    const prevCloseInterest = data.subarray(i + 122, i + 130);
+    const prevOpenInterest = data.subarray(i + 122, i + 130);
 
     const extractedTradingSymbol = tradingSymbol
       .toString("utf8")
@@ -39,9 +39,9 @@ export const handleNetStream = (data) => {
 
     let jsonPkt = {
       index: extractedTradingSymbol,
-      LTP: (Number(LTP.readBigInt64LE()) * 100.0) / 10000,
+      LTP: (Number(LTP.readBigInt64LE()) ) / 100.0,
       timestamp: date.toISOString(),
-      prevClosePrice: Number(prevCloseInterest.readBigInt64LE()),
+      prevClosePrice: Number(prevClosePrice.readBigInt64LE())/ 100.0,
     };
 
     // console.log(`date:${jsonPkt.timestamp}`);
@@ -69,14 +69,14 @@ export const handleNetStream = (data) => {
         ...jsonPkt,
         packetLength: packetLength.readInt32LE(0),
         sequnceNumber: Number(sequnceNumber.readBigInt64LE()),
-        LTQ: (Number(LTQ.readBigInt64LE()) * 100.0) / 10000,
+        LTQ: (Number(LTQ.readBigInt64LE()) ),
         volume: Number(volume.readBigInt64LE()),
-        bidPrice: (Number(bidPrice.readBigInt64LE()) * 100.0) / 10000,
+        bidPrice: (Number(bidPrice.readBigInt64LE()) ) / 100.0,
         bidQty: Number(bidQty.readBigInt64LE()),
-        askPrice: (Number(askPrice.readBigInt64LE()) * 100.0) / 10000,
+        askPrice: (Number(askPrice.readBigInt64LE()) ) / 100.0,
         askQuantity: Number(askQuantity.readBigInt64LE()),
         OI: Number(OI.readBigInt64LE()),
-        prevCloseInterest: Number(prevCloseInterest.readBigInt64LE()),
+        prevOpenInterest: Number(prevOpenInterest.readBigInt64LE()),
       };
 
       indianDate = new Date(jsonPkt.timestamp);

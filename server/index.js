@@ -33,7 +33,7 @@ tcpClient.connect(8000, "localhost", () => {
   tcpClient.on("data", (data) => {
     const jsonPkts = handleNetStream(data);
     if (jsonPkts.length > 0) {
-    console.log(jsonPkts);
+    // console.log(jsonPkts);
     if (socket_io_server.engine.clientsCount > 0) {
         socket_io_server.emit("data", jsonPkts);
         console.log("tcpData emitted");

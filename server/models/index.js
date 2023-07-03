@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const indexSchema = mongoose.Schema({
-  name: String,
+  index: String,
   LTP: Number,
   timestamp: Date,
   prevClosePrice: Number

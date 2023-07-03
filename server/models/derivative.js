@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 const derivativeSchema = mongoose.Schema({
   index: String,
   type: String,
-  expiry: Date,
   strikePrice: Number,
-  timeStamp: Date,
+  expiry: Date,
+  timestamp: Date,
   LTP: Number,
   LTQ: Number,
   volume: Number,

@@ -12,23 +12,53 @@ import { TableVirtuoso } from 'react-virtuoso';
 
 
 const sample = [
-	['Frozen yoghurt', 159, 6.0, 24, 4.0],
-	['Ice cream sandwich', 237, 9.0, 37, 4.3],
-	['Eclair', 262, 16.0, 24, 6.0],
-	['Cupcake', 305, 3.7, 67, 4.3],
-	['Gingerbread', 356, 16.0, 49, 3.9],
+	[0,0,200,10,458,200,20,0,0,0,0,194,0,0,0,0,0,0,0,0,0,0,0],
+	[0,0,0,0,0,0,0,0,0,0,0,192,0,0,0,0,10,0,187,5,0,1,0,],
+	[0,0,0,0,0,0,0,0,0,0,0,164,0,0,0,0,5,0,13,5,0,-3,0,],
 ];
 
-function createData(id, dessert, calories, fat, carbs, protein) {
-return { id, dessert, calories, fat, carbs, protein };
-}
+// function createData(id, dessert, calories, fat, carbs, protein) {
+// return { id, dessert, calories, fat, carbs, protein };
+// }
+
+// function createData(id, symbol, LTP, LTQ, totalTradedVolume, bestBid, bestAsk, bestBidQty, bestAskQty, openInterest, askqty1, askprice1, strike, askprice2, askqty2, bidprice2, bidqty2, chng2, ltq2, ltp2, iv2, volume2, chngoi2, oi2) {
+// 	return {id,symbol,LTP,LTQ,totalTradedVolume,bestBid,bestAsk,bestBidQty,bestAskQty,openInterest,askqty1,askprice1,strike,askprice2,askqty2,bidprice2,bidqty2,chng2,ltq2,ltp2,iv2,volume2,chngoi2,oi2
+// 	};
+//   }
+
+  function createData(id, ...values) {
+	const data = {};
+	columns.forEach((column, index) => {
+	  data[column.dataKey] = values[index];
+	});
+	return { id, ...data };
+  }
+  
 
 const columns = [
-	{width: 200,label: 'Dessert',dataKey: 'dessert',},
-	{width: 120,label: 'Calories\u00A0(g)',dataKey: 'calories',numeric: true,},
-	{width: 120,label: 'Fat\u00A0(g)',dataKey: 'fat',numeric: true,},
-	{width: 120,label: 'Carbs\u00A0(g)',dataKey: 'carbs',numeric: true,},
-	{width: 120,label: 'Protein\u00A0(g)',dataKey: 'protein',numeric: true,},
+	{width: 200,label: 'OI',dataKey: 'oi1',numeric: true,},
+	{width: 200,label: 'CHNG IN OI',dataKey: 'chngoi1',numeric: true,},
+	{width: 120,label: 'VOLUME',dataKey: 'volume1',numeric: true,},
+	{width: 200,label: 'IV',dataKey: 'iv1',numeric: true,},
+	{width: 120,label: 'LTP',dataKey: 'ltp1',numeric: true,},
+	{width: 120,label: 'LTQ',dataKey: 'ltq1',numeric: true,},
+	{width: 200,label: 'CHNG',dataKey: 'chng1',numeric: true,},
+	{width: 120,label: 'BID QTY',dataKey: 'bidqty1',numeric: true,},
+	{width: 120,label: 'BID PRICE',dataKey: 'bidprice1',numeric: true,},
+	{width: 120,label: 'ASK QTY',dataKey: 'askqty1',numeric: true,},
+	{width: 120,label: 'ASK PRICE',dataKey: 'askprice1',numeric: true,},
+	{width: 120,label: 'STRIKE',dataKey: 'strike',numeric: true,},
+	{width: 120,label: 'ASK PRICE',dataKey: 'askprice2',numeric: true,},
+	{width: 120,label: 'ASK QTY',dataKey: 'askqty2',numeric: true,},
+	{width: 120,label: 'BID PRICE',dataKey: 'bidprice2',numeric: true,},
+	{width: 120,label: 'BID QTY',dataKey: 'bidqty2',numeric: true,},
+	{width: 200,label: 'CHNG',dataKey: 'chng2',numeric: true,},
+	{width: 120,label: 'LTQ',dataKey: 'ltq2',numeric: true,},
+	{width: 120,label: 'LTP',dataKey: 'ltp2',numeric: true,},
+	{width: 200,label: 'IV',dataKey: 'iv2',numeric: true,},
+	{width: 120,label: 'VOLUME',dataKey: 'volume2',numeric: true,},
+	{width: 200,label: 'CHNG IN OI',dataKey: 'chngoi2',numeric: true,},
+	{width: 200,label: 'OI',dataKey: 'oi2',numeric: true,},
 ];
   
   const rows = Array.from({ length: 200 }, (_, index) => {

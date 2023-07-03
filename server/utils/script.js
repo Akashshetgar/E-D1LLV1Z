@@ -33,19 +33,28 @@ function black_scholes(S, X, r, T, sigma) {
   return call_price;
 }
 
-function calculate_iv(market_data) {
+export default function calculate_iv(market_data) {
   var LTP = market_data['LTP'];
-  var X = parseInt(market_data['symbol'].match(/(\d{2}[A-Z]+\d{2})(\d+)/)[2]); // Extract strike price from the symbol
-  console.log(X);
+  
+  var X = market_data['symbol'].match(/(\d{2}[A-Z]+\d{2})(\d+)/); // Extract strike price from the symbol
+  var expiration_date_str = market_data['symbol'].match(/(\d{2}[A-Z]+\d{2})/); // Extract the expiration date from the symbol
+  if(X == null) {
+    X = 0;
+    expiration_date_str = '0';
+  }
+  else{
+    X = parseInt(X[2]);
+    expiration_date_str = expiration_date_str[1];
+  }
+ 
   var r = 0.05; // Risk-free interest rate as 5% (0.05)
 
-  var expiration_date_str = market_data['symbol'].match(/(\d{2}[A-Z]+\d{2})/)[1]; // Extract the expiration date from the symbol
-  console.log(expiration_date_str);
+  // console.log(expiration_date_str);
   var expiration_date = new Date(expiration_date_str.replace(/(\d{2})([A-Z]+)(\d{2})/, '$1 $2 $3')); // Parse expiration date
   var timestamp = new Date(market_data['timestamp'].replace('IST', ''));
   var expiration_datetime = new Date(expiration_date.getFullYear(), expiration_date.getMonth(), expiration_date.getDate(), 15, 30);
   var TTM = (expiration_datetime - timestamp) / (60 * 60 * 24 * 1000 * 365); // Time to maturity in years
-  console.log(TTM);
+  // console.log(TTM);
 
   if (TTM < 0) {
     TTM = 0; // If the contract has expired, set TTM to a negative value
@@ -99,4 +108,5 @@ var market_data = {
 };
 
 var implied_volatility = calculate_iv(market_data);
-console.log("Implied Volatility: " + implied_volatility);
+// console.log("Implied Volatility: " + implied_volatility);
+

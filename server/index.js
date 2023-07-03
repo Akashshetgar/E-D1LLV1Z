@@ -7,8 +7,6 @@ import { Server } from "socket.io";
 import net from "net";
 import  calculate_iv  from "./utils/script.js";
 
-
-
 const app = express();
 const server = http.createServer(app);
 const socket_io_server = new Server(server,{
@@ -186,4 +184,3 @@ socket_io_server.on('connection', (socket) => {
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
-

@@ -62,23 +62,46 @@ tcpClient.connect(8000, "localhost", () => {
       const prevCloseInterest = data.subarray(i+122, i+130);
 
       
+      
       const jsonPkt = {
         packetLength: packetLength.readInt32LE(0),
         tradingSymbol: tradingSymbol.toString('utf8').replace(/\0/g, ''),
         sequnceNumber:Number(sequnceNumber.readBigInt64LE()),
-        timeStamp: date.toISOString().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'}),
-        LTP:Number( LTP.readBigInt64LE()),
-        LTQ:Number( LTQ.readBigInt64LE()),
+        timeStamp: date.toISOString(),
+        LTP:(Number( LTP.readBigInt64LE())*100.0)/10000,
+        LTQ:(Number( LTQ.readBigInt64LE())*100.0)/10000,
         volume:Number( volume.readBigInt64LE()),
-        bidPrice: Number(bidPrice.readBigInt64LE()),
+        bidPrice: (Number(bidPrice.readBigInt64LE())*100.0)/10000,
         bidQty: Number(bidQty.readBigInt64LE()),
-        askPrice:Number( askPrice.readBigInt64LE()),
+        askPrice:(Number( askPrice.readBigInt64LE())*100.0)/10000,
         askQuantity:Number( askQuantity.readBigInt64LE()),
         OI:Number( OI.readBigInt64LE()),
-        prevClosePrice:Number( prevClosePrice.readBigInt64LE()),
+        prevClosePrice:(Number( prevClosePrice.readBigInt64LE())*100.0)/10000,
         prevCloseInterest: Number(prevCloseInterest.readBigInt64LE())
         
       };
+      var indianDate = new Date(jsonPkt.timeStamp);
+      indianDate = new Date(indianDate.getTime() + (5.5 * 60 * 60 * 1000));
+      indianDate = indianDate.toISOString();
+
+      var name = jsonPkt.tradingSymbol.match(/(\d{2}[A-Z]+\d{2})(\d+)/);
+      var ts;
+      var sp;
+      var expry;
+      var typ;
+
+      if( name === null) {
+        ts = jsonPkt.tradingSymbol;
+        sp = 0;
+        expry = 0;
+      }
+      else{
+        ts = jsonPkt.tradingSymbol.match(/^[A-Za-z]+/)[0]
+        expry = name[3];
+        sp = parseInt(name[2]);
+        typ = jsonPkt.tradingSymbol.slice(-2)
+      }
+
       const IV_Calc = calculate_iv({
         'symbol': jsonPkt.tradingSymbol,
         'LTP':  jsonPkt.LTP,
@@ -89,7 +112,7 @@ tcpClient.connect(8000, "localhost", () => {
         'bestBidQty':   jsonPkt.bidQty,
         'bestAskQty':   jsonPkt.askQuantity,
         'openInterest':   jsonPkt.OI,
-        'timestamp': jsonPkt.timeStamp,
+        'timestamp': indianDate,
         'sequence':   jsonPkt.sequnceNumber,
         'prevClosePrice':   jsonPkt.prevClosePrice,
         'prevOpenInterest':   jsonPkt.prevCloseInterest
@@ -97,7 +120,7 @@ tcpClient.connect(8000, "localhost", () => {
 
       const newJsonPkt = {
         tradingSymbol: jsonPkt.tradingSymbol,
-        timeStamp: jsonPkt.timeStamp,
+        timeStamp: indianDate,
         LTP: jsonPkt.LTP,
         LTQ: jsonPkt.LTQ,
         volume: jsonPkt.volume,
@@ -108,27 +131,31 @@ tcpClient.connect(8000, "localhost", () => {
         OI:jsonPkt.OI,
         prevClosePrice:jsonPkt.prevClosePrice,
         prevCloseInterest: jsonPkt.prevCloseInterest,
-        IV: IV_Calc
+        IV: IV_Calc,
+        type: typ,
+        strikePrice: sp,
+        expiry: expry,
+        name: ts
       };
       jsonPkts.push(newJsonPkt);
       
-      console.log({
-        packetLength : packetLength.readInt32LE(0),
-        tradingSymbol: tradingSymbol.toString('utf8'),
-        sequnceNumber:Number(sequnceNumber.readBigInt64LE()),
-        timeStamp: date.toISOString(),
-        LTP:Number( LTP.readBigInt64LE()),
-        LTQ:Number( LTQ.readBigInt64LE()),
-        volume:Number( volume.readBigInt64LE()),
-        bidPrice: Number(bidPrice.readBigInt64LE()),
-        bidQty: Number(bidQty.readBigInt64LE()),
-        askPrice:Number( askPrice.readBigInt64LE()),
-        askQuantity:Number( askQuantity.readBigInt64LE()),
-        OI:Number( OI.readBigInt64LE()),
-        prevClosePrice:Number( prevClosePrice.readBigInt64LE()),
-        prevCloseInterest: Number(prevCloseInterest.readBigInt64LE())
+      // console.log({
+      //   packetLength : packetLength.readInt32LE(0),
+      //   tradingSymbol: tradingSymbol.toString('utf8'),
+      //   sequnceNumber:Number(sequnceNumber.readBigInt64LE()),
+      //   timeStamp: date.toISOString(),
+      //   LTP:Number( LTP.readBigInt64LE()),
+      //   LTQ:Number( LTQ.readBigInt64LE()),
+      //   volume:Number( volume.readBigInt64LE()),
+      //   bidPrice: Number(bidPrice.readBigInt64LE()),
+      //   bidQty: Number(bidQty.readBigInt64LE()),
+      //   askPrice:Number( askPrice.readBigInt64LE()),
+      //   askQuantity:Number( askQuantity.readBigInt64LE()),
+      //   OI:Number( OI.readBigInt64LE()),
+      //   prevClosePrice:Number( prevClosePrice.readBigInt64LE()),
+      //   prevCloseInterest: Number(prevCloseInterest.readBigInt64LE())
   
-      });
+      // });
       i = i + 130;
     }
     if(socket_io_server.engine.clientsCount > 0) {

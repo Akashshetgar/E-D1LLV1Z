@@ -6,18 +6,18 @@ function ContactBar() {
 	return (
 		<div className={styles.contact_bar_wrapper}>
 			<div className={styles.contact_bar}>
-				<a href="https://www.linkedin.com/in/swarangi-kule-b8613720a/" target="_blank" rel="noopener noreferrer" className={styles.icon} >
+				<a href="" target="_blank" rel="noopener noreferrer" className={styles.icon} >
 					<LinkedInIcon  />
 				</a>
-				<a href="https://github.com/swarangi3128" target="_blank" rel="noopener noreferrer" className={styles.icon} >
+				<a href="" target="_blank" rel="noopener noreferrer" className={styles.icon} >
 					<GitHubIcon  />
 				</a>
 				
 				<div className={styles.line}></div>
 			</div>
 			<div className={styles.contact_bar}>
-				<a href="mailto:swarangikule@gmail.com" className={styles.email}>
-					swarangikule@gmail.com
+				<a href="" className={styles.email}>
+					E-D1LLV1Z
 				</a>
 				<div className={styles.line}></div>
 			</div>

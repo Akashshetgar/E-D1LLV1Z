@@ -58,3 +58,7 @@
 .nav_resume_btn:hover {
     background: var(--green-tint);
 }
+.logo_text {
+    margin-left: 8px; /* Adjust the margin value as needed */
+  }
+  

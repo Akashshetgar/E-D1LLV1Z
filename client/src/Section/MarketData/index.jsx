@@ -86,7 +86,8 @@ function fixedHeaderContent() {
           key={column.dataKey}
           variant="head"
           align={column.numeric || false ? 'right' : 'left'}
-          style={{ width: column.width,  }}
+          style={{ width: column.width,backgroundColor: '#000050' ,color: 'whitesmoke' }}
+		  
           sx={{
             backgroundColor: 'grey.300',
           }}
@@ -105,6 +106,7 @@ function rowContent(_index, row) {
         <TableCell
           key={column.dataKey}
           align={column.numeric || false ? 'right' : 'left'}
+		  style={{ backgroundColor: '#CCE5FF', color: 'black' }}
         >
           {row[column.dataKey]}
         </TableCell>
@@ -113,10 +115,11 @@ function rowContent(_index, row) {
   );
 }
 
-function About() {
+function MarketData() {
 	return (
-		<section id="about">
-			<Heading index="01" heading="About Me" />
+		<section id="MarketData">
+			<Heading index="01" heading="Option Chain (Equity Derivatives)" />
+			
 			{/* <div className={styles.tableContainer}> */}
 				<Paper style={{ height: 400, width: '100%' }}>
 					<TableVirtuoso
@@ -131,4 +134,4 @@ function About() {
 	);
 }
 
-export default About;
+export default MarketData;

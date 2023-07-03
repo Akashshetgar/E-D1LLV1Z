@@ -1,6 +1,6 @@
 import Navbar from "./Components/Navbar";
 
-import About from "./Section/About";
+import MarketData from "./Section/MarketData";
 import Contact from "./Section/Contact";
 
 import Home from "./Section/Home";
@@ -17,8 +17,9 @@ function App() {
 			<Navbar />
 			<div className="app_section_container">
 				<Home />
-				<About />
+				<MarketData />
 				<Contact />
+				
 			</div>
 			<ContactBar />
 			<Footer />

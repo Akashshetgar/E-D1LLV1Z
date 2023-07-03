@@ -7,6 +7,7 @@ import { Server } from "socket.io";
 import net from "net";
 
 
+
 const app = express();
 const server = http.createServer(app);
 const socket_io_server = new Server(server,{
@@ -16,32 +17,33 @@ const socket_io_server = new Server(server,{
   }
 });
 
+socket_io_server.listen(5000, () => {
+  console.log(`listening on port:${5000}`);
+});
+
 // CONNECTION WITH MARKET DATA STREAM SERVER
 const tcpClient = new net.Socket();
-
-dotenv.config();
 
 const jsonPkts = [];
 
 tcpClient.connect(8000, "localhost", () => {
   console.log("Connected to TCP server.");
   tcpClient.write(Buffer.from([0x41]));
-  const jsonPkts = [];
   // Event handler for receiving data from TCP server
   tcpClient.on("data", (data) => {
-    
-    const packetSize = 130;
-    const byteSize = 2;
-    let i = 0;
-    const transformedPackets = []
+    jsonPkts.splice(0, jsonPkts.length);
+    var packetSize = 130;
+    var byteSize = 2;
+    var i = 0;
     while(i<data.length-130) {
       const packetLength = data.subarray(i, i+4);
       if(packetLength.readInt32LE(0) !== 124) {
-        console.log("packet length is not correct: ",packetLength.readInt32LE(), " ",packetLength.readInt16LE());
+        // console.log("packet length is not correct: ",packetLength.readInt32LE(), " ",packetLength.readInt16LE());
         // console.log("smaller packet ",packetLength.subarray(0,2).readInt32LE(), " ",packetLength.subarray(0,2).readInt16LE());
-        i = i + packetLength.readInt32LE(0);
+        // i = i + packetLength.readInt32LE(0);
         // setTimeout(() => {}, 1000);
-        continue;
+        break;
+        // continue;
       }
       const tradingSymbol = data.subarray(i+4, i+34);
       const sequnceNumber = data.subarray(i+34, i+42);
@@ -58,24 +60,56 @@ tcpClient.connect(8000, "localhost", () => {
       const prevClosePrice = data.subarray(i+114, i+122);
       const prevCloseInterest = data.subarray(i+122, i+130);
 
+      
       const jsonPkt = {
-        "packetLength": packetLength.readInt32LE(0),
-        "tradingSymbol": tradingSymbol.toString('utf8'),
-        "sequnceNumber":Number(sequnceNumber.readBigInt64LE()),
-        "timeStamp": date.toISOString(),
-        "LTP":Number( LTP.readBigInt64LE()),
-        "LTQ":Number( LTQ.readBigInt64LE()),
-        "volume":Number( volume.readBigInt64LE()),
-        "bidPrice": Number(bidPrice.readBigInt64LE()),
-        "bidQty": Number(bidQty.readBigInt64LE()),
-        "askPrice":Number( askPrice.readBigInt64LE()),
-        "askQuantity":Number( askQuantity.readBigInt64LE()),
-        "OI":Number( OI.readBigInt64LE()),
-        "prevClosePrice":Number( prevClosePrice.readBigInt64LE()),
-        "prevCloseInterest": Number(prevCloseInterest.readBigInt64LE())
-  
+        packetLength: packetLength.readInt32LE(0),
+        tradingSymbol: tradingSymbol.toString('utf8').replace(/\0/g, ''),
+        sequnceNumber:Number(sequnceNumber.readBigInt64LE()),
+        timeStamp: date.toISOString().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'}),
+        LTP:Number( LTP.readBigInt64LE()),
+        LTQ:Number( LTQ.readBigInt64LE()),
+        volume:Number( volume.readBigInt64LE()),
+        bidPrice: Number(bidPrice.readBigInt64LE()),
+        bidQty: Number(bidQty.readBigInt64LE()),
+        askPrice:Number( askPrice.readBigInt64LE()),
+        askQuantity:Number( askQuantity.readBigInt64LE()),
+        OI:Number( OI.readBigInt64LE()),
+        prevClosePrice:Number( prevClosePrice.readBigInt64LE()),
+        prevCloseInterest: Number(prevCloseInterest.readBigInt64LE())
+        
       };
-      jsonPkts.push(jsonPkt);
+      const IV_Calc = calculate_iv({
+        'symbol': jsonPkt.tradingSymbol,
+        'LTP':  jsonPkt.LTP,
+        'LTQ':  jsonPkt.LTQ,
+        'totalTradedVolume':  jsonPkt.volume,
+        'bestBid':  jsonPkt.bidPrice,
+        'bestAsk':  jsonPkt.askPrice,
+        'bestBidQty':   jsonPkt.bidQty,
+        'bestAskQty':   jsonPkt.askQuantity,
+        'openInterest':   jsonPkt.OI,
+        'timestamp': jsonPkt.timeStamp,
+        'sequence':   jsonPkt.sequnceNumber,
+        'prevClosePrice':   jsonPkt.prevClosePrice,
+        'prevOpenInterest':   jsonPkt.prevCloseInterest
+      });
+
+      const newJsonPkt = {
+        tradingSymbol: jsonPkt.tradingSymbol,
+        timeStamp: jsonPkt.timeStamp,
+        LTP: jsonPkt.LTP,
+        LTQ: jsonPkt.LTQ,
+        volume: jsonPkt.volume,
+        bidPrice: jsonPkt.bidPrice,
+        bidQty: jsonPkt.bidQty,
+        askPrice:jsonPkt.askPrice,
+        askQuantity:jsonPkt.askQuantity,
+        OI:jsonPkt.OI,
+        prevClosePrice:jsonPkt.prevClosePrice,
+        prevCloseInterest: jsonPkt.prevCloseInterest,
+        IV: IV_Calc
+      };
+      jsonPkts.push(newJsonPkt);
       
       console.log({
         packetLength : packetLength.readInt32LE(0),
@@ -96,25 +130,27 @@ tcpClient.connect(8000, "localhost", () => {
       });
       i = i + 130;
     }
-
-    
-    // console.log("tcpData", data[0].toString(32).length);
+    if(socket_io_server.engine.clientsCount > 0) {
+      socket_io_server.emit("data", jsonPkts);
+      console.log("tcpData emitted",);
+    }
+  
   });
   
   // Event handler for TCP connection close
   tcpClient.on("close", () => {
     console.log("TCP connection closed.");
   });
-  });
+});
+dotenv.config();
+
 
 socket_io_server.on('connection', (socket) => {
-  console.log("client connected");
-
-  socket.emit("data", jsonPkts);
-
-    socket.on("disconnect", () => {
-      console.log("Socket.io client disconnected.");
-    });
+  console.log("Socket.io client connected");
+ 
+  socket.on("disconnect", () => {
+    console.log("Socket.io client disconnected.");
+  });
 
 });
 
@@ -123,6 +159,3 @@ app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
 
-server.listen(5000, () => {
-  console.log(`listening on port:${process.env.PORT}`);
-});

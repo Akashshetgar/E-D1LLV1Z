@@ -53,8 +53,8 @@ export default function calculate_iv(market_data) {
   var expiration_date = new Date(expiration_date_str.replace(/(\d{2})([A-Z]+)(\d{2})/, '$1 $2 $3')); // Parse expiration date
   var timestamp = new Date(market_data['timestamp'].replace('IST', ''));
   var expiration_datetime = new Date(expiration_date.getFullYear(), expiration_date.getMonth(), expiration_date.getDate(), 15, 30);
-  var TTM = (expiration_datetime - timestamp) / (60 * 60 * 24 * 1000 * 365); // Time to maturity in years
-  // console.log(TTM);
+  var TTM = (expiration_datetime - timestamp) / (60 * 60 * 24 * 1000); // Time to maturity in years
+  // console.log(TTM, " ", expiration_datetime, " ", timestamp);
 
   if (TTM < 0) {
     TTM = 0; // If the contract has expired, set TTM to a negative value

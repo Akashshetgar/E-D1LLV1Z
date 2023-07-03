@@ -67,15 +67,15 @@ tcpClient.connect(8000, "localhost", () => {
         tradingSymbol: tradingSymbol.toString('utf8').replace(/\0/g, ''),
         sequnceNumber:Number(sequnceNumber.readBigInt64LE()),
         timeStamp: date.toISOString(),
-        LTP:(Number( LTP.readBigInt64LE())*100.0)/10000,
-        LTQ:(Number( LTQ.readBigInt64LE())*100.0)/10000,
+        LTP:(Number( LTP.readBigInt64LE())/100.0),
+        LTQ:(Number( LTQ.readBigInt64LE())),
         volume:Number( volume.readBigInt64LE()),
-        bidPrice: (Number(bidPrice.readBigInt64LE())*100.0)/10000,
+        bidPrice: (Number(bidPrice.readBigInt64LE())/100.0),
         bidQty: Number(bidQty.readBigInt64LE()),
-        askPrice:(Number( askPrice.readBigInt64LE())*100.0)/10000,
+        askPrice:(Number( askPrice.readBigInt64LE())/100.0),
         askQuantity:Number( askQuantity.readBigInt64LE()),
         OI:Number( OI.readBigInt64LE()),
-        prevClosePrice:(Number( prevClosePrice.readBigInt64LE())*100.0)/10000,
+        prevClosePrice:(Number( prevClosePrice.readBigInt64LE())/100.0),
         prevCloseInterest: Number(prevCloseInterest.readBigInt64LE())
         
       };

@@ -7,6 +7,7 @@ import { socket } from '../socket.js';
 
 const GetJSON = () => {
   const [data, setData] = React.useState([]); 
+  const [allTradingSymbols, setAllTradingSymbols] = React.useState([]);
 
   useEffect(() => {
 
@@ -16,9 +17,19 @@ const GetJSON = () => {
     socket.on('data', (data) => {
       if (data.length > 0){
         handleAddData(data);
-        // console.log('Received data from server:', data);
+        console.log('Received data from server:', data);
+      }      
+    });
+
+    // socket.on('ALLBANKS06JUL2344400CE',(data)=>{
+    //   console.log('sock data ', data);
+    // })
+
+    socket.on("allTradingSymbols", (data) => {
+      if(data !== undefined){
+        console.log('allTradingSymbols ', data);
+        setAllTradingSymbols(data);
       }
-      
     });
     
     socket.on('disconnect', ()=>console.log('disconnected socket'));

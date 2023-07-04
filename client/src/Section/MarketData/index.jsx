@@ -10,6 +10,13 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { TableVirtuoso } from 'react-virtuoso';
 
+import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+
+
 
 const sample = [
 	[0,0,200,10,458,200,20,0,0,0,0,194,0,0,0,0,0,0,0,0,0,0,0],
@@ -57,17 +64,6 @@ const columns = [
 	return createData(index, ...randomSelection);
   });
 
-// const rows = Array.from({ length: 50 }, (_, index) => {
-// 	const randomSelection = sample[Math.floor(Math.random() * sample.length)];
-// 	const row = createData(index, ...randomSelection);
-// 	const isLtp1GreaterThanStrike = row.ltp1 > row.strike;
-// 	const isLtp2LesserThanStrike = row.ltp2 < row.strike;
-// 	row.style = {
-// 	  backgroundColor: isLtp1GreaterThanStrike ? 'yellow' : '#0a1d2f',
-// 	  backgroundColor: isLtp2LesserThanStrike ? 'yellow' : '#0a1d2f',
-// 	};
-// 	return row;
-//   });
   
   const VirtuosoTableComponents = {
 	Scroller: React.forwardRef((props, ref) => (
@@ -80,6 +76,53 @@ const columns = [
 	TableRow: ({ item: _item, ...props }) => <TableRow {...props} />,
 	TableBody: React.forwardRef((props, ref) => <TableBody {...props} ref={ref} />),
   };
+
+  function Dropdown({ label, options, selectedOption, onOptionChange }) {
+	return (
+	  <Box sx={{ minWidth: 120 }}>
+		<FormControl fullWidth>
+		  <InputLabel
+			id={`${label}-label`}
+			sx={{ color: 'whitesmoke' }}
+		  >
+			{label}
+		  </InputLabel>
+		  <Select
+			labelId={`${label}-label`}
+			id={`${label}-select`}
+			value={selectedOption}
+			label={label}
+			onChange={onOptionChange}
+			sx={{
+			  backgroundColor: '#1c4684',
+			  color: 'whitesmoke',
+			  width: 150,
+			  '& .MuiSelect-icon': {
+				color: '#0a1d2f',
+			  },
+			  '& .MuiMenuItem-root': {
+				color: 'whitesmoke',
+				backgroundColor: '#0a1d2f',
+			  },
+			  '& .MuiListItem-root.Mui-selected': {
+				backgroundColor: '#0a1d2f',
+			  },
+			  '& .MuiListItem-root.Mui-selected:hover': {
+				backgroundColor: '#0a1d2f',
+			  },
+			}}
+		  >
+			{options.map((option, index) => (
+			  <MenuItem key={index} value={option}>
+				{option}
+			  </MenuItem>
+			))}
+		  </Select>
+		</FormControl>
+	  </Box>
+	);
+  }
+  
 
 function fixedHeaderContent() {
   return (
@@ -102,24 +145,6 @@ function fixedHeaderContent() {
   );
 }
 
-// function rowContent(_index, row) {
-//   return (
-//     <React.Fragment>
-//       {columns.map((column) => (
-//         <TableCell
-//           key={column.dataKey}
-//           align='center'
-// 		  style={{ backgroundColor: '#0a1d2f', color: 'white' }}
-// 		  sx={{
-//             fontSize: 12,
-//           }}
-//         >
-//           {row[column.dataKey]}
-//         </TableCell>
-//       ))}
-//     </React.Fragment>
-//   );
-// }
 
 function rowContent(_index, row) {
 	return (
@@ -156,21 +181,63 @@ function rowContent(_index, row) {
   
 
 function MarketData() {
+	const contractOptions = ['Contract 1', 'Contract 2', 'Contract 3'];
+	const symbolOptions = ['Symbol 1', 'Symbol 2', 'Symbol 3'];
+	const expiryDateOptions = ['Expiry Date 1', 'Expiry Date 2', 'Expiry Date 3'];
+	const strikePriceOptions = ['Strike Price 1', 'Strike Price 2', 'Strike Price 3'];
+  
+	const [contract, setContract] = React.useState('');
+	const [symbol, setSymbol] = React.useState('');
+	const [expiryDate, setExpiryDate] = React.useState('');
+	const [strikePrice, setStrikePrice] = React.useState('');
+
+	
+
 	return (
-		<section id="MarketData">
-			<Heading index="01" heading="Option Chain (Equity Derivatives)" />
-			
-			{/* <div className={styles.tableContainer}> */}
+			<section id="MarketData1">
+
+
+				<Heading index="01" heading="Option Chain (Equity Derivatives)" />
+				<div style={{ display: 'flex',justifyContent: 'center', alignItems: 'center' }}>
+				<Dropdown 
+					label="View Options Contract for" 
+					options={contractOptions} 
+					selectedOption={contract} 
+					onOptionChange={(e) => setContract(e.target.value)} 
+				/>
+				<span style={{ margin: '0 10px' }}> OR </span>
+				<Dropdown 
+					label="Select Symbol" 
+					options={symbolOptions} 
+					selectedOption={symbol} 
+					onOptionChange={(e) => setSymbol(e.target.value)} 
+				/>
+				<span style={{ margin: '0 10px'}}></span>
+				<Dropdown 
+					label="Expiry Date" 
+					options={expiryDateOptions} 
+					selectedOption={expiryDate} 
+					onOptionChange={(e) => setExpiryDate(e.target.value)} 
+				/>
+				<span style={{ margin: '0 10px'}}> OR </span>
+				<Dropdown 
+					label="Strike Price" 
+					options={strikePriceOptions} 
+					selectedOption={strikePrice} 
+					onOptionChange={(e) => setStrikePrice(e.target.value)} 
+				/>
+				</div>
+				<br></br>
+				{/* <div className={styles.tableContainer}> */}
 				<Paper style={{ height: 1000, width: '100%' }}>
 					<TableVirtuoso
 						data={rows}
 						components={VirtuosoTableComponents}
 						fixedHeaderContent={fixedHeaderContent}
-						itemContent={rowContent}
-					/>
+						itemContent={rowContent} />
 				</Paper>
-			{/* </div> */}
-		</section>
+				{/* </div> */}
+			</section>
 	);
 }
 

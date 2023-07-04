@@ -11,13 +11,11 @@ export const handleNetStream = async (data) => {
   var packetSize = 130;
   var byteSize = 2;
   var i = 0;
+  
   while (i <= data.length - 130) {
     const packetLength = data.subarray(i, i + 4);
     if (packetLength.readInt32LE(0) !== 124) {
-      // console.log("packet length is not correct: ",packetLength.readInt32LE(), " ",packetLength.readInt16LE());
-      // console.log("smaller packet ",packetLength.subarray(0,2).readInt32LE(), " ",packetLength.subarray(0,2).readInt16LE());
-      // i = i + packetLength.readInt32LE(0);
-      // setTimeout(() => {}, 1000);
+   
       break;
       // continue;
     }
@@ -43,7 +41,7 @@ export const handleNetStream = async (data) => {
     const name = extractedTradingSymbol.match(/(\d{2}[A-Z]+\d{2})(\d+)/);
 
     let jsonPkt = {
-      // tradingSymbol : tradingSymbol,
+      tradingSymbol : extractedTradingSymbol,
       index: extractedTradingSymbol,
       LTP: (Number(LTP.readBigInt64LE()) ) / 100.0,
       timestamp: date.toISOString(),
@@ -56,11 +54,6 @@ export const handleNetStream = async (data) => {
     let expry;
     let typ;
 
-    // if (name === null) {
-    //   ts = extractedTradingSymbol;
-    //   sp = 0;
-    //   expry = 0;
-    // } else {
     let indianDate;
     let IV_Calc;
 
@@ -149,14 +142,15 @@ export const handleNetStream = async (data) => {
     //     }
     //   }
     // });
-    allTradingSymbols.add({type: jsonPkt.typ, index: jsonPkt.index, expiry: jsonPkt.expiry, strikePrice: jsonPkt.strikePrice });
+    allTradingSymbols.add({type: jsonPkt.typ, index: jsonPkt.index, expiry: jsonPkt.expiry, strikePrice: jsonPkt.strikePrice, tradingSymbol: jsonPkt.tradingSymbol });
     socket_io_server.on("connection", (socket) => {
-      if(i%500 === 1){
-
+      if(i%130 == 0){
         socket.emit("allTradingSymbols", Array.from(allTradingSymbols));
+
       }
       // socket.emit("hello", "hello there");
-      socket.emit(jsonPkt.index, jsonPkt);
+      socket.emit(jsonPkt.tradingSymbol, jsonPkt);
+      // socket.off(jsonPkt.index)
     });
     await rclient.set(jsonPkt.index, JSON.stringify(jsonPkt))
     jsonPkts.push(jsonPkt);

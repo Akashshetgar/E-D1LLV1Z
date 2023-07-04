@@ -19,7 +19,7 @@ const socket_io_server = new Server(server, {
   },
 });
 
-socket_io_server.sockets.setMaxListeners(2000);
+socket_io_server.sockets.setMaxListeners(50000);
 
 socket_io_server.listen(5000, () => {
   console.log(`listening on port:${5000}`);

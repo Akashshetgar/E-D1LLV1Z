@@ -18,7 +18,9 @@ import { useContext } from "react";
 import { OptionsContext } from "../../contexts/OptionsContext";
 import { IndexContext } from "../../contexts/IndexContext";
 import { OptionNamesContext } from "../../contexts/OptionNamesContext";
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, Box } from '@mui/material';
+import { AllTradingSymbolsContext } from "../../contexts/AllTradingSymbolsContext";
+
 
 const sample = [
   [
@@ -64,24 +66,10 @@ const columns = [
 ];
 
 
-// const rows = Object.keys()
-
 const rows = Array.from({ length: 50 }, (_, index) => {
   const randomSelection = sample[Math.floor(Math.random() * sample.length)];
   return createData(index, ...randomSelection);
 });
-
-// const rows = Array.from({ length: 50 }, (_, index) => {
-// 	const randomSelection = sample[Math.floor(Math.random() * sample.length)];
-// 	const row = createData(index, ...randomSelection);
-// 	const isLtp1GreaterThanStrike = row.ltp1 > row.strike;
-// 	const isLtp2LesserThanStrike = row.ltp2 < row.strike;
-// 	row.style = {
-// 	  backgroundColor: isLtp1GreaterThanStrike ? 'yellow' : '#0a1d2f',
-// 	  backgroundColor: isLtp2LesserThanStrike ? 'yellow' : '#0a1d2f',
-// 	};
-// 	return row;
-//   });
 
 const VirtuosoTableComponents = {
   Scroller: React.forwardRef((props, ref) => (
@@ -122,24 +110,6 @@ function fixedHeaderContent() {
   );
 }
 
-// function rowContent(_index, row) {
-//   return (
-//     <React.Fragment>
-//       {columns.map((column) => (
-//         <TableCell
-//           key={column.dataKey}
-//           align='center'
-// 		  style={{ backgroundColor: '#0a1d2f', color: 'white' }}
-// 		  sx={{
-//             fontSize: 12,
-//           }}
-//         >
-//           {row[column.dataKey]}
-//         </TableCell>
-//       ))}
-//     </React.Fragment>
-//   );
-// }
 
 function rowContent(_index, row) {
   return (
@@ -226,37 +196,79 @@ const sortArrayByTimeStamp = (data) => {
   return sortedArray;
 };
 
+
+
 function DataTable() {
   const [data, setData] = React.useState([]); 
   const {optionsState, setOptionsState} = useContext(OptionsContext); 
   const {indexState, setIndexState} = useContext(IndexContext); 
-  const {optionNames, setOptionNames} = useContext(OptionNamesContext);
-
-  const [optionName, setOptionName] = React.useState("");
-  const [expiry, setExpiry] = React.useState("");
+  // const {allTradingSymbolsState, setAllTradingSymbolsState} = useContext(AllTradingSymbolsContext);
+  const [allTradingSymbols, setAllTradingSymbols] = React.useState([]);
+  
+  // console.log("all Tradings: ", allTradingSymbols);
+  
+  const [contract, setContract] = React.useState("");
+  const [expiryDate, setExpiryDate] = React.useState("");
+  const [symbol, setSymbol] = React.useState("");
   const [strikePrice, setStrikePrice] = React.useState("");
+  const [optionNames, setOptionNames] =  React.useState([]);
+  const [expiryDates, setExpiryDates] = React.useState([]);
+  const [strikePrices, setStrikePrices] = React.useState([]);
 
-  const handleOptionChange = (event) => {
-    setOptionName(event.target.value);
-  };
-  
-  const handleExpiryChange = (event) => {
-    setExpiry(event.target.value);
-    setStrikePrice('');
-  };
-  
-  const handleStrikeChange = (event) => {
-    setStrikePrice(event.target.value);
-    setExpiry('');
-  };
+  function Dropdown({ label, options, selectedOption, onOptionChange }) {
+    return (
+      <Box sx={{ minWidth: 120 }}>
+      <FormControl fullWidth>
+        <InputLabel
+        id={`${label}-label`}
+        sx={{ color: 'whitesmoke' }}
+        >
+        {label}
+        </InputLabel>
+        <Select
+        labelId={`${label}-label`}
+        id={`${label}-select`}
+        value={selectedOption}
+        label={label}
+        onChange={onOptionChange}
+        sx={{
+          backgroundColor: '#1c4684',
+          color: 'whitesmoke',
+          width: 150,
+          '& .MuiSelect-icon': {
+          color: '#0a1d2f',
+          },
+          '& .MuiMenuItem-root': {
+          color: 'whitesmoke',
+          backgroundColor: '#0a1d2f',
+          },
+          '& .MuiListItem-root.Mui-selected': {
+          backgroundColor: '#0a1d2f',
+          },
+          '& .MuiListItem-root.Mui-selected:hover': {
+          backgroundColor: '#0a1d2f',
+          },
+        }}
+        >
+        {options.map((option, index) => (
+          <MenuItem key={index} value={option}>
+          {option}
+          </MenuItem>
+        ))}
+        </Select>
+      </FormControl>
+      </Box>
+    );
+    }
+
 
   const handleAddData = (dataArg) => {
     dataArg.map((entry, index) => {
       //getting option name list
-      if (!optionNames.includes(entry.name) ) {
+      if (!optionNames.includes(entry.ts) ) {
         setOptionNames((prevState) => {
           const newEntry = [...prevState];
-          newEntry.push(entry.name);
+          newEntry.push(entry.ts);
           return newEntry;
         });
       } 
@@ -289,6 +301,13 @@ function DataTable() {
     // setData(newData);
   };
 
+  const updateStream = (contract) => {
+    const ar = allTradingSymbols.filter((entry, index) => {
+      return entry.index == contract;
+    });
+    
+  }
+
   useEffect(() => {
     socket.on("connection", () =>
       console.log("connected socket : ", socket.id)
@@ -298,8 +317,17 @@ function DataTable() {
     socket.on("data", (data) => {
       if (data.length > 0) {
         handleAddData(data);
-        console.log("Received data from server:", data);
+        // console.log("Received data from server:", data);
+        
       }
+    });
+    
+    socket.on("allTradingSymbols", (data) => {
+      // console.log("allTradingSymbols ", data);
+      if(data!==undefined && data !=={allTradingSymbols}){
+        setAllTradingSymbols(data);
+      }
+      
     });
 
     socket.on("disconnect", () => console.log("disconnected socket"));
@@ -322,44 +350,72 @@ function DataTable() {
     }
   }, [data]);
 
-  let testArray = filterArray("name", "MAINIDX", data);
-  testArray = sortArrayByTimeStamp(testArray, data);
-  console.log("Data being sorted");
+  useEffect(() => {
+    var expiryDatess = new Set();
+    var strikePricess = new Set();
+    var optionNames = new Set();
+    
+    allTradingSymbols.map((entry, index) => {
+      console.log(entry);
+      // optionNames.add(entry.name);
+      if(entry.strikePrice!==undefined){
+
+        strikePricess.add(entry.strikePrice);
+      }
+      if(entry.expiry!==undefined){
+        expiryDatess.add(entry.expiry);
+      }
+      if(entry.index!==undefined){
+        optionNames.add(entry.index)
+      }
+    });
+    expiryDatess = Array.from(expiryDatess);
+    strikePricess = Array.from(strikePricess);
+    
+
+    setExpiryDates(expiryDatess);
+    setStrikePrices(strikePricess);
+    setOptionNames(Array.from(optionNames));
+  
+    
+  }, [allTradingSymbols])
+  // const optionNames = new Set();
+  console.log("expiryDates: ", expiryDates);
+  console.log("strikePrices: ", strikePrices); 
+  console.log("optionNames: ", optionNames);
 
   return (
     <>
-  
-    <div className={styles.dropdownContainer}>
-      <FormControl className={styles.dropdown}>
-        <InputLabel>Option Name</InputLabel>
-        <Select value={optionName} onChange={handleOptionChange}>
-          {optionNames.map((optionName) => {
-            return <MenuItem value={optionName}>{optionName}</MenuItem>;
-          })}
-          {/* // <MenuItem value="Option 1">Option 1</MenuItem>
-          // <MenuItem value="Option 2">Option 2</MenuItem>
-          // <MenuItem value="Option 3">Option 3</MenuItem> */}
-        </Select>
-      </FormControl>
-
-      <FormControl className={styles.dropdown}>
-        <InputLabel>Expiry Date</InputLabel>
-        <Select value={expiry} onChange={handleExpiryChange} disabled={optionName==''}>
-          <MenuItem value="Expiry 1">Expiry 1</MenuItem>
-          <MenuItem value="Expiry 2">Expiry 2</MenuItem>
-          <MenuItem value="Expiry 3">Expiry 3</MenuItem>
-        </Select>
-      </FormControl>
-
-      <FormControl className={styles.dropdown}>
-        <InputLabel>Strike Price</InputLabel>
-        <Select value={strikePrice} onChange={handleStrikeChange} disabled={optionName==''}>
-          <MenuItem value="Strike 1">Strike 1</MenuItem>
-          <MenuItem value="Strike 2">Strike 2</MenuItem>
-          <MenuItem value="Strike 3">Strike 3</MenuItem>
-        </Select>
-      </FormControl>
-    </div>
+    <div style={{ display: 'flex',justifyContent: 'center', alignItems: 'center' }}>
+				<Dropdown 
+					label="View Options Contract for" 
+					options={optionNames} 
+					selectedOption={contract} 
+					onOptionChange={(e) => {setContract(e.target.value); updateStream(e.target.value)}} 
+				/>
+				{/* <span style={{ margin: '0 10px' }}> OR </span>
+				<Dropdown 
+					label="Select Symbol" 
+					options={[]} 
+					selectedOption={symbol} 
+					onOptionChange={(e) => setSymbol(e.target.value)} 
+				/> */}
+				<span style={{ margin: '0 10px'}}></span>
+				<Dropdown 
+					label="Expiry Date" 
+					options={expiryDates} 
+					selectedOption={expiryDate} 
+					onOptionChange={(e) => setExpiryDate(e.target.value)} 
+				/>
+				<span style={{ margin:'0 10px'}}> OR </span>
+				<Dropdown 
+					label="Strike Price" 
+					options={[1,2,3,4]} 
+					selectedOption={strikePrice} 
+					onOptionChange={(e) => setStrikePrice(e.target.value)} 
+				/>
+				</div>
+    
     <section id="MarketData">
       <Heading index="01" heading="Option Chain (Equity Derivatives)" />
 

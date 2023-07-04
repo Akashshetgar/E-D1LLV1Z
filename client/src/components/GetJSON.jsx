@@ -1,24 +1,26 @@
 /* eslint-disable no-unreachable */
 /* eslint-disable react/jsx-key */
 /* eslint-disable no-unused-vars */
-import React, { useEffect } from 'react';
-import { socket } from '../socket.js';
+import React, { useContext, useEffect } from "react";
+import { socket } from "../socket.js";
+import { AllTradingSymbolsContext } from "../contexts/AllTradingSymbolsContext.jsx";
 
 
 const GetJSON = () => {
-  const [data, setData] = React.useState([]); 
+  const [data, setData] = React.useState([]);
   const [allTradingSymbols, setAllTradingSymbols] = React.useState([]);
+  // const [allTradingSymbols, setAllTradingSymbols] = useState([]);
+  
 
   useEffect(() => {
-
-    socket.on('connect', ()=>console.log('connected socket : ', socket.id));
+    socket.on("connect", () => console.log("connected socket : ", socket.id));
 
     console.log(socket.connected);
-    socket.on('data', (data) => {
-      if (data.length > 0){
+    socket.on("data", (data) => {
+      if (data.length > 0) {
         handleAddData(data);
-        console.log('Received data from server:', data);
-      }      
+        console.log("Received data from server:", data);
+      }
     });
 
     // socket.on('ALLBANKS06JUL2344400CE',(data)=>{
@@ -26,18 +28,14 @@ const GetJSON = () => {
     // })
 
     socket.on("allTradingSymbols", (data) => {
-      if(data !== undefined){
-        console.log('allTradingSymbols ', data);
-        setAllTradingSymbols(data);
-      }
+      // if (data !== undefined) {
+      // }
+      console.log("allTradingSymbols ", data);
+      setAllTradingSymbols(data);
     });
-    
-    socket.on('disconnect', ()=>console.log('disconnected socket'));
-    // // Clean up the socket connection when component unmounts
-    // return () => {
-    //   console.log("component unmounted");
-    //   socket.disconnect();
-    // };
+
+    socket.on("disconnect", () => console.log("disconnected socket"));
+
   }, []);
 
   useEffect(() => {
@@ -56,7 +54,7 @@ const GetJSON = () => {
     const newData = [...data];
     newData.push(dataArg);
     setData(newData);
-  }
+  };
 
   const filterArray = (key, value) => {
     const filteredArray = data.filter((item) => {
@@ -79,23 +77,24 @@ const GetJSON = () => {
     // console.log(sortedArray);
     return sortedArray;
   };
-  
-  var testArray = filterArray('name', "MAINIDX");
+
+  var testArray = filterArray("name", "MAINIDX");
   testArray = sortArrayByTimeStamp(testArray);
 
   // Your component code...
 
-  return(
+  return (
     <div>
-      {
-        testArray.map((item) => {
-          {/* return <div>This should not be displayed</div>; */}
-          return <div style={{ display: "none" }}>This should not be displayed</div>;
-        })
-      }
+      {testArray.map((item) => {
+        {
+          /* return <div>This should not be displayed</div>; */
+        }
+        return (
+          <div style={{ display: "none" }}>This should not be displayed</div>
+        );
+      })}
     </div>
   );
-    
 };
 
 export default GetJSON;

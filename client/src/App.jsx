@@ -6,6 +6,8 @@ import GetJSON from "./components/GetJSON";
 import OptionsProvider from "./contexts/OptionsContext";
 import IndexProvider from "./contexts/IndexContext";
 import OptionNamesProvider from "./contexts/OptionNamesContext";
+import AllTradingSymbolsProvider from "./contexts/AllTradingSymbolsContext";
+import DataTable from "./components/DataTable/DataTable";
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -14,8 +16,12 @@ function App() {
     <>
       <IndexProvider>
         <OptionsProvider>
-          {/* <GetJSON /> */}
-          <DataTableV2 />
+          <AllTradingSymbolsProvider>
+            <OptionNamesProvider>
+              {/* <GetJSON /> */}
+              <DataTable />
+            </OptionNamesProvider>
+          </AllTradingSymbolsProvider>
         </OptionsProvider>
       </IndexProvider>
     </>

@@ -1,6 +1,11 @@
 import calculate_iv from "./script.js";
+import rclient from "./redisConnector.js";
+import socket_io_server from "../index.js";
 
-export const handleNetStream = (data) => {
+
+const allTradingSymbols = new Set();
+
+export const handleNetStream = async (data) => {
   const jsonPkts = [];
   // jsonPkts.splice(0, jsonPkts.length);
   var packetSize = 130;
@@ -38,6 +43,7 @@ export const handleNetStream = (data) => {
     const name = extractedTradingSymbol.match(/(\d{2}[A-Z]+\d{2})(\d+)/);
 
     let jsonPkt = {
+      // tradingSymbol : tradingSymbol,
       index: extractedTradingSymbol,
       LTP: (Number(LTP.readBigInt64LE()) ) / 100.0,
       timestamp: date.toISOString(),
@@ -130,6 +136,29 @@ export const handleNetStream = (data) => {
     //   // tradingSymbol: jsonPkt.tradingSymbol,
     // };
     // console.log(jsonPkt);
+    // rclient.exists(jsonPkt.index, (err, reply) => {
+    //   if (err) {
+    //     console.error('Error:', err);
+    //     // Handle the error
+    //   } else {
+    //     if (reply === 1) {
+    //       socket_io_server.emit(jsonPkt.index, jsonPkt);
+    //       console.log('sock emitted');
+    //     } else {
+    //       console.log('sock not emitted');
+    //     }
+    //   }
+    // });
+    allTradingSymbols.add({type: jsonPkt.typ, index: jsonPkt.index, expiry: jsonPkt.expiry, strikePrice: jsonPkt.strikePrice });
+    socket_io_server.on("connection", (socket) => {
+      if(i%500 === 1){
+
+        socket.emit("allTradingSymbols", Array.from(allTradingSymbols));
+      }
+      // socket.emit("hello", "hello there");
+      socket.emit(jsonPkt.index, jsonPkt);
+    });
+    await rclient.set(jsonPkt.index, JSON.stringify(jsonPkt))
     jsonPkts.push(jsonPkt);
     i = i + 130;
   }

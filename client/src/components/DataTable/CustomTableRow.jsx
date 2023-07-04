@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { TableCell, TableRow } from "@mui/material";
+import { TableCell, TableRow, Typography } from "@mui/material";
 import React, { useContext, useState } from "react";
 import { OptionsContext } from "../../contexts/OptionsContext";
 
@@ -14,7 +14,7 @@ const CustomTableRow = ({ colNames, isHead, strk }) => {
     <React.Fragment>
       {isHead ? (
         <TableRow>
-          {colNames.map(({ label, datakey, isCE }, index) => {
+          {colNames.map(({ label, dataKey, isCE }, index) => {
             return (
               <TableCell
                 key={index}
@@ -22,7 +22,8 @@ const CustomTableRow = ({ colNames, isHead, strk }) => {
                 align="center"
                 style={{
                   width: 20,
-                  backgroundColor: "#1c4684",
+                  backgroundColor:
+                    dataKey == "strikePrice" ? "black" : "#1c4684",
                   color: "whitesmoke",
                 }}
                 sx={{
@@ -46,7 +47,8 @@ const CustomTableRow = ({ colNames, isHead, strk }) => {
                 align="center"
                 style={{
                   width: 20,
-                  backgroundColor: "#1c4684",
+                  backgroundColor:
+                    dataKey == "strikePrice" ? "black" : "#1c4684",
                   color: "whitesmoke",
                 }}
                 sx={{

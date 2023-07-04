@@ -19,39 +19,35 @@ import { IndexContext } from "../../contexts/IndexContext";
 import CustomTableRow from "./CustomTableRow";
 
 const columnNames = [
-    { label: "OI", dataKey: "OI", isCE: true },
-    { label: "CHNG IN OI", dataKey: "chngOI", isCE: true },
-    { label: "VOLUME", dataKey: "volume", isCE: true },
-    { label: "IV", dataKey: "IV", isCE: true },
-    { label: "LTP", dataKey: "LTP", isCE: true },
-    { label: "LTQ", dataKey: "LTQ", isCE: true },
-    { label: "CHNG", dataKey: "chng", isCE: true },
-    { label: "BID QTY", dataKey: "bidQty", isCE: true },
-    { label: "BID PRICE", dataKey: "bidPrice", isCE: true },
-    { label: "ASK QTY", dataKey: "askQuantity", isCE: true },
-    { label: "ASK PRICE", dataKey: "askPrice", isCE: true },
-    { label: "STRIKE", dataKey: "strikePrice" },
-    { label: "ASK PRICE", dataKey: "askPrice", isCE: false },
-    { label: "ASK QTY", dataKey: "askQuantity", isCE: false },
-    { label: "BID PRICE", dataKey: "bidPrice", isCE: false },
-    { label: "BID QTY", dataKey: "bidQty", isCE: false },
-    { label: "CHNG", dataKey: "chng", isCE: false },
-    { label: "LTQ", dataKey: "LTQ", isCE: false },
-    { label: "LTP", dataKey: "LTP", isCE: false },
-    { label: "IV", dataKey: "IV", isCE: false },
-    { label: "VOLUME", dataKey: "volume", isCE: false },
-    { label: "CHNG IN OI", dataKey: "chngOI", isCE: false },
-    { label: "OI", dataKey: "OI", isCE: false },
+  { label: "OI", dataKey: "OI", isCE: true },
+  { label: "CHNG IN OI", dataKey: "chngOI", isCE: true },
+  { label: "VOLUME", dataKey: "volume", isCE: true },
+  { label: "IV", dataKey: "IV", isCE: true },
+  { label: "LTP", dataKey: "LTP", isCE: true },
+  { label: "LTQ", dataKey: "LTQ", isCE: true },
+  { label: "CHNG", dataKey: "chng", isCE: true },
+  { label: "BID QTY", dataKey: "bidQty", isCE: true },
+  { label: "BID PRICE", dataKey: "bidPrice", isCE: true },
+  { label: "ASK QTY", dataKey: "askQuantity", isCE: true },
+  { label: "ASK PRICE", dataKey: "askPrice", isCE: true },
+  { label: "STRIKE", dataKey: "strikePrice" },
+  { label: "ASK PRICE", dataKey: "askPrice", isCE: false },
+  { label: "ASK QTY", dataKey: "askQuantity", isCE: false },
+  { label: "BID PRICE", dataKey: "bidPrice", isCE: false },
+  { label: "BID QTY", dataKey: "bidQty", isCE: false },
+  { label: "CHNG", dataKey: "chng", isCE: false },
+  { label: "LTQ", dataKey: "LTQ", isCE: false },
+  { label: "LTP", dataKey: "LTP", isCE: false },
+  { label: "IV", dataKey: "IV", isCE: false },
+  { label: "VOLUME", dataKey: "volume", isCE: false },
+  { label: "CHNG IN OI", dataKey: "chngOI", isCE: false },
+  { label: "OI", dataKey: "OI", isCE: false },
 ];
-
-
-
 
 const DataTable = () => {
   const [data, setData] = React.useState([]);
   const { optionsState, setOptionsState } = useContext(OptionsContext);
   const { indexState, setIndexState } = useContext(IndexContext);
-  
 
   const handleAddData = (dataArg) => {
     // console.log(optionsState);
@@ -106,7 +102,7 @@ const DataTable = () => {
         handleAddData(data);
         // console.log("Received data from server:", data);
       }
-    }
+    };
 
     console.log(socket.connected);
     socket.on("data", onData);
@@ -135,6 +131,42 @@ const DataTable = () => {
     <div>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableRow>
+            <TableCell
+              variant="head"
+              align="center"
+              style={{
+                width: 20,
+                backgroundColor: "black",
+                color: "whitesmoke",
+              }}
+              sx={{
+                backgroundColor: "grey.300",
+                fontSize: 11,
+                fontWeight: "bold",
+              }}
+              colSpan={12}
+            >
+              CALL
+            </TableCell>
+            <TableCell
+              variant="head"
+              align="center"
+              style={{
+                width: 20,
+                backgroundColor: "black",
+                color: "whitesmoke",
+              }}
+              sx={{
+                backgroundColor: "grey.300",
+                fontSize: 11,
+                fontWeight: "bold",
+              }}
+              colSpan={12}
+            >
+              PUT
+            </TableCell>
+          </TableRow>
           <CustomTableRow colNames={columnNames} isHead={true} />
           <TableBody>
             {Object.keys(optionsState).map((strikePrice, index) => (

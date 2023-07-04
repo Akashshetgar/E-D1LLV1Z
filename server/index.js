@@ -13,7 +13,7 @@ const app = express();
 const server = http.createServer(app);
 const socket_io_server = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "http://127.0.0.1:5173",
     methods: ["GET", "POST"],
   },
 });
@@ -33,8 +33,8 @@ tcpClient.connect(8000, "localhost", () => {
   tcpClient.on("data", (data) => {
     const jsonPkts = handleNetStream(data);
     if (jsonPkts.length > 0) {
-    // console.log(jsonPkts);
-    if (socket_io_server.engine.clientsCount > 0) {
+      // console.log(jsonPkts);
+      if (socket_io_server.engine.clientsCount > 0) {
         socket_io_server.emit("data", jsonPkts);
         console.log("tcpData emitted");
       }

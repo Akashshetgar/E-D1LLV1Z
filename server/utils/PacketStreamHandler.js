@@ -99,7 +99,7 @@ export const handleNetStream = (data) => {
         prevOpenInterest: jsonPkt.prevCloseInterest,
       });
 
-      jsonPkt = {...jsonPkt, IV: IV_Calc, type: typ}
+      jsonPkt = {...jsonPkt, IV: IV_Calc, type: typ, strikePrice: sp, expiry: expry}
 
       // PUSH PACKET to DERIVATIVE collection  
       // pushDerivativeEntry(jsonPkt)

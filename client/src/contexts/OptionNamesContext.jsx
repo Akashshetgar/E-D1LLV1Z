@@ -7,6 +7,7 @@ const initialState = [];
 
 const OptionNamesProvider = (props) => {
   const [optionNames, setOptionNames] = useState(initialState);
+  // const [optionNames, setOptionNames] = useState(initialState);
 
   return (
     <OptionNamesContext.Provider value={{ optionNames, setOptionNames }}>

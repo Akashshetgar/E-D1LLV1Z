@@ -1,6 +1,6 @@
 .home_section {
   width: calc(100% - 200px);
-  height: 100vh;
+  height: 70vh;
   max-height: 800px;
   display: flex;
   flex-direction: column;

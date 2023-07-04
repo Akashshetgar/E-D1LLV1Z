@@ -51,6 +51,7 @@ const DataTable = () => {
   const [data, setData] = React.useState([]);
   const { optionsState, setOptionsState } = useContext(OptionsContext);
   const { indexState, setIndexState } = useContext(IndexContext);
+  
 
   const handleAddData = (dataArg) => {
     // console.log(optionsState);

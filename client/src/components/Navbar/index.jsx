@@ -1,5 +1,5 @@
-import styles from "./styles1.module.css";
-import logoImage from "/logo.svg"; // Replace "logo.png" with the path to your image file
+import styles from "./styles.module.css";
+import logoImage from "./logo-edl.jpg"; // Replace "logo.png" with the path to your image file
 
 const Navbar = () => {
   return (

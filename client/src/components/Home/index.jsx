@@ -3,9 +3,9 @@ import styles from "./styles.module.css";
 function Home() {
 	return (
 		<section className={styles.home_section} id="home">
-			<p className={styles.greet} style={{ paddingLeft: "300px" }}> Options Chain Tool</p>
 			<h1 className={styles.heading_1}>E-D1LLV1Z</h1>
-			<h3 className={styles.heading_2}>Sample text.</h3>
+			<h3 className={styles.heading_2}>Your options start here...</h3>
+			<p className={styles.greet} style={{ paddingLeft: "300px" }}> Options Chain Tool</p>
 			<p className={styles.desc}>
 			...
 			</p>
@@ -17,10 +17,6 @@ function Home() {
 					/>
 					<div className={styles.img_border}></div>
 				</div>
-			<a href="#work">
-				<button className={styles.btn}>..</button>
-			</a>
-			
 		</section>
 	);
 }

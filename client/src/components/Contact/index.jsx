@@ -7,36 +7,36 @@ import MailIcon from '@mui/icons-material/Mail';
 
 const contacts = [
   {
-    name: 'Person 1',
-    profilePic: 'person1.jpg',
-    github: 'https://github.com/person1',
+    name: 'Swarangi Kule',
+    // profilePic: 'person1.jpg',
+    github: 'https://github.com/swarangi3128',
     linkedin: 'https://www.linkedin.com/in/swarangi-kule-b8613720a/',
-    email: 'person1@example.com',
-    phone: '9619553845',
+    email: 'swarangi.kule@somaiya.edu',
+    phone: '+91 9619553845',
   },
   {
-    name: 'Person 2',
-    profilePic: 'person2.jpg',
-    github: 'https://github.com/person2',
-    linkedin: 'https://linkedin.com/in/person2',
-    email: 'person2@example.com',
-    phone: '9876543210',
+    name: 'Aakash Wagle',
+    // profilePic: 'person2.jpg',
+    github: 'https://github.com/aakash-wagle/',
+    linkedin: 'https://www.linkedin.com/in/aakash-wagle-826a21235/',
+    email: 'aakash.wagle@somaiya.edu',
+    phone: '+91 8369686436',
   },
   {
-    name: 'Person 3',
-    profilePic: 'person3.jpg',
-    github: 'https://github.com/person3',
-    linkedin: 'https://linkedin.com/in/person3',
-    email: 'person3@example.com',
-    phone: '4567891230',
+    name: 'Akash Shetgar',
+    // profilePic: 'person3.jpg',
+    github: 'https://github.com/Akashshetgar',
+    linkedin: 'https://www.linkedin.com/in/akash-shetgar-122654209/',
+    email: 'akash.shetgar@somaiya.edu',
+    phone: '+91 7093108528',
   },
   {
-    name: 'Person 4',
-    profilePic: 'person4.jpg',
-    github: 'https://github.com/person4',
-    linkedin: 'https://linkedin.com/in/person4',
-    email: 'person4@example.com',
-    phone: '3219876540',
+    name: 'Dwayne Vaz Nigel',
+    // profilePic: 'person4.jpg',
+    github: 'https://github.com/Dwayne232001',
+    linkedin: 'https://www.linkedin.com/in/dwayne-vaz',
+    email: 'dwayne.vaz@somaiya.edu',
+    phone: '+91 9930530439',
   },
 ];
 
@@ -50,7 +50,6 @@ function Contact() {
       
       <div className={styles.contact_row}>
         <div className={styles.contact_card}>
-          <img src={contacts[0].profilePic} alt={contacts[0].name} className={styles.profile_pic} />
           <div className={styles.contact_info}>
             <h2>{contacts[0].name}</h2>
             <div className={styles.social_links}>
@@ -68,7 +67,6 @@ function Contact() {
           </div>
         </div>
         <div className={styles.contact_card}>
-          <img src={contacts[1].profilePic} alt={contacts[1].name} className={styles.profile_pic} />
           <div className={styles.contact_info}>
             <h2>{contacts[1].name}</h2>
             <div className={styles.social_links}>
@@ -88,7 +86,6 @@ function Contact() {
       </div>
       <div className={styles.contact_row}>
         <div className={styles.contact_card}>
-          <img src={contacts[2].profilePic} alt={contacts[2].name} className={styles.profile_pic} />
           <div className={styles.contact_info}>
             <h2>{contacts[2].name}</h2>
             <div className={styles.social_links}>
@@ -106,7 +103,6 @@ function Contact() {
           </div>
         </div>
         <div className={styles.contact_card}>
-          <img src={contacts[3].profilePic} alt={contacts[3].name} className={styles.profile_pic} />
           <div className={styles.contact_info}>
             <h2>{contacts[3].name}</h2>
             <div className={styles.social_links}>

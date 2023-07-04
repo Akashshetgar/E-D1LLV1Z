@@ -49,3 +49,15 @@
   max-width: 800px;
   width: 100%;
 }
+.dropdownContainer{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+
+}
+.dropdown{
+  margin-left: 10px;
+  margin-right: 10px;
+  width: 150px;
+}

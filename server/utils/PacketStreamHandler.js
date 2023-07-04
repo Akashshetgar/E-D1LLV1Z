@@ -106,7 +106,6 @@ export const handleNetStream = async (data) => {
       });
 
       jsonPkt = {...jsonPkt, IV: IV_Calc, index: ts, type: typ, strikePrice: sp, expiry: expry}
-      
 
       // PUSH PACKET to DERIVATIVE collection  
       // pushDerivativeEntry(jsonPkt)

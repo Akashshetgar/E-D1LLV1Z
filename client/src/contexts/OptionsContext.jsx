@@ -3,7 +3,7 @@ import React, { useState, useContext, createContext } from "react";
 
 export const OptionsContext = createContext(null);
 
-const initialState = [];
+const initialState = {};
 
 const OptionsProvider = (props) => {
   const [optionsState, setOptionsState] = useState(initialState);

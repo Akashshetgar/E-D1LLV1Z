@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
 import "./App.css";
-import DataTable from "./components/DataTable/DataTable";
+import DataTableV2 from "./components/DataTable/DataTableV2";
 import GetJSON from "./components/GetJSON";
 import OptionsProvider from "./contexts/OptionsContext";
 import IndexProvider from "./contexts/IndexContext";
@@ -14,10 +14,8 @@ function App() {
     <>
       <IndexProvider>
         <OptionsProvider>
-          <OptionNamesProvider>
-            <GetJSON />
-            <DataTable />
-          </OptionNamesProvider>
+          {/* <GetJSON /> */}
+          <DataTableV2 />
         </OptionsProvider>
       </IndexProvider>
     </>

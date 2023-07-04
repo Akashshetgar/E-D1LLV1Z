@@ -16,7 +16,7 @@ const GetJSON = () => {
     socket.on('data', (data) => {
       if (data.length > 0){
         handleAddData(data);
-        console.log('Received data from server:', data);
+        // console.log('Received data from server:', data);
       }
       
     });

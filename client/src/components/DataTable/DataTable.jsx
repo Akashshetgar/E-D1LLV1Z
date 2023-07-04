@@ -17,6 +17,8 @@ import { socket } from '../../socket.js';
 import { useContext } from "react";
 import { OptionsContext } from "../../contexts/OptionsContext";
 import { IndexContext } from "../../contexts/IndexContext";
+import { OptionNamesContext } from "../../contexts/OptionNamesContext";
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 const sample = [
   [
@@ -225,33 +227,64 @@ function DataTable() {
   const [data, setData] = React.useState([]); 
   const {optionsState, setOptionsState} = useContext(OptionsContext); 
   const {indexState, setIndexState} = useContext(IndexContext); 
+  const {optionNames, setOptionNames} = useContext(OptionNamesContext);
+
+  const [optionName, setOptionName] = React.useState("");
+  const [expiry, setExpiry] = React.useState("");
+  const [strikePrice, setStrikePrice] = React.useState("");
+
+  const handleOptionChange = (event) => {
+    setOptionName(event.target.value);
+  };
+  
+  const handleExpiryChange = (event) => {
+    setExpiry(event.target.value);
+    setStrikePrice('');
+  };
+  
+  const handleStrikeChange = (event) => {
+    setStrikePrice(event.target.value);
+    setExpiry('');
+  };
 
   const handleAddData = (dataArg) => {
     dataArg.map((entry, index) => {
-      if (entry.type=="index") {
-        setIndexState((prevState)=>{
-          return {...prevState, [entry.index]: entry}   // Do something about prev LTP
-        })
-      }else{
-        setOptionsState((prevState)=>{
+      //getting option name list
+      if (!optionNames.includes(entry.name) ) {
+        setOptionNames((prevState) => {
+          const newEntry = [...prevState];
+          newEntry.push(entry.name);
+          return newEntry;
+        });
+      } 
+      //getting index list
+      if (entry.type == "index") {
+        setIndexState((prevState) => {
+          return { ...prevState, [entry.index]: entry }; // Do something about prev LTP
+        });
+      } else {
+        setOptionsState((prevState) => {
           const strikePrice = entry.strikePrice;
-          const newEntry = {...prevState}
-          if(entry.type=="CE"){
-            let temp = newEntry[strikePrice]
-            temp.CE = entry
+          const newEntry = { ...prevState };
+          let temp = newEntry[strikePrice];
+          if (entry.type == "CE") {
+            temp.CE = entry;
+            newEntry[strikePrice].CE = temp.CE;
+          } else if (entry.type == "PE") {
+            temp.PE = entry;
+            newEntry[strikePrice].CE = temp.PE;
+          } else {
+            console.log("Err: ", entry.type);
           }
-          return {newEntry}
-
-          
-        })
+          return { newEntry };
+        });
       }
-    })
+    });
 
-
-    const newData = [...data];
-    newData.push(dataArg);
-    setData(newData);
-  }
+    // const newData = [...data];
+    // newData.push(dataArg);
+    // setData(newData);
+  };
 
   useEffect(() => {
 
@@ -291,6 +324,39 @@ function DataTable() {
   console.log("Data being sorted");
 
   return (
+    <>
+  
+    <div className={styles.dropdownContainer}>
+      <FormControl className={styles.dropdown}>
+        <InputLabel>Option Name</InputLabel>
+        <Select value={optionName} onChange={handleOptionChange}>
+          {optionNames.map((optionName) => {
+            return <MenuItem value={optionName}>{optionName}</MenuItem>;
+          })}
+          {/* // <MenuItem value="Option 1">Option 1</MenuItem>
+          // <MenuItem value="Option 2">Option 2</MenuItem>
+          // <MenuItem value="Option 3">Option 3</MenuItem> */}
+        </Select>
+      </FormControl>
+
+      <FormControl className={styles.dropdown}>
+        <InputLabel>Expiry Date</InputLabel>
+        <Select value={expiry} onChange={handleExpiryChange} disabled={optionName==''}>
+          <MenuItem value="Expiry 1">Expiry 1</MenuItem>
+          <MenuItem value="Expiry 2">Expiry 2</MenuItem>
+          <MenuItem value="Expiry 3">Expiry 3</MenuItem>
+        </Select>
+      </FormControl>
+
+      <FormControl className={styles.dropdown}>
+        <InputLabel>Strike Price</InputLabel>
+        <Select value={strikePrice} onChange={handleStrikeChange} disabled={optionName==''}>
+          <MenuItem value="Strike 1">Strike 1</MenuItem>
+          <MenuItem value="Strike 2">Strike 2</MenuItem>
+          <MenuItem value="Strike 3">Strike 3</MenuItem>
+        </Select>
+      </FormControl>
+    </div>
     <section id="MarketData">
       <Heading index="01" heading="Option Chain (Equity Derivatives)" />
 
@@ -305,6 +371,7 @@ function DataTable() {
       </Paper>
       {/* </div> */}
     </section>
+    </>
   );
 }
 

@@ -5,6 +5,7 @@ import DataTable from "./components/DataTable/DataTable";
 import GetJSON from "./components/GetJSON";
 import OptionsProvider from "./contexts/OptionsContext";
 import IndexProvider from "./contexts/IndexContext";
+import OptionNamesProvider from "./contexts/OptionNamesContext";
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -13,8 +14,10 @@ function App() {
     <>
       <IndexProvider>
         <OptionsProvider>
-          <GetJSON />
-          {/* <DataTable /> */}
+          <OptionNamesProvider>
+            <GetJSON />
+            <DataTable />
+          </OptionNamesProvider>
         </OptionsProvider>
       </IndexProvider>
     </>

@@ -1,11 +1,9 @@
 import calculate_iv from "./script.js";
-import rclient from "./redisConnector.js";
-import socket_io_server from "../index.js";
 
 
 const allTradingSymbols = new Set();
 
-export const handleNetStream = async (data) => {
+export const handleNetStream = (data) => {
   const jsonPkts = [];
   // jsonPkts.splice(0, jsonPkts.length);
   var packetSize = 130;
@@ -149,16 +147,16 @@ export const handleNetStream = async (data) => {
     //     }
     //   }
     // });
-    allTradingSymbols.add({type: jsonPkt.typ, index: jsonPkt.index, expiry: jsonPkt.expiry, strikePrice: jsonPkt.strikePrice });
-    socket_io_server.on("connection", (socket) => {
-      if(i%500 === 1){
+    // // allTradingSymbols.add({type: jsonPkt.typ, index: jsonPkt.index, expiry: jsonPkt.expiry, strikePrice: jsonPkt.strikePrice });
+    // socket_io_server.on("connection", (socket) => {
+    //   // if(i%500 === 1){
 
-        socket.emit("allTradingSymbols", Array.from(allTradingSymbols));
-      }
-      // socket.emit("hello", "hello there");
-      socket.emit(jsonPkt.index, jsonPkt);
-    });
-    await rclient.set(jsonPkt.index, JSON.stringify(jsonPkt))
+    //   //   socket.emit("allTradingSymbols", Array.from(allTradingSymbols));
+    //   // }
+    //   // socket.emit("hello", "hello there");
+    //   socket.emit(jsonPkt.index, jsonPkt);
+    // });
+    // await rclient.set(jsonPkt.index, JSON.stringify(jsonPkt))
     jsonPkts.push(jsonPkt);
     i = i + 130;
   }

@@ -25,12 +25,12 @@ const GetJSON = () => {
     //   console.log('sock data ', data);
     // })
 
-    socket.on("allTradingSymbols", (data) => {
-      if(data !== undefined){
-        console.log('allTradingSymbols ', data);
-        setAllTradingSymbols(data);
-      }
-    });
+    // socket.on("allTradingSymbols", (data) => {
+    //   if(data !== undefined){
+    //     console.log('allTradingSymbols ', data);
+    //     setAllTradingSymbols(data);
+    //   }
+    // });
     
     socket.on('disconnect', ()=>console.log('disconnected socket'));
     // // Clean up the socket connection when component unmounts

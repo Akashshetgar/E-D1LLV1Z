@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
 /* eslint-disable react/display-name */
 /* eslint-disable no-unused-vars */
@@ -18,7 +19,7 @@ import { useContext } from "react";
 import { OptionsContext } from "../../contexts/OptionsContext";
 import { IndexContext } from "../../contexts/IndexContext";
 import { OptionNamesContext } from "../../contexts/OptionNamesContext";
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 const sample = [
   [
@@ -62,7 +63,6 @@ const columns = [
   { label: "CHNG IN OI", dataKey: "chngoi2", numeric: true },
   { label: "OI", dataKey: "oi2", numeric: true },
 ];
-
 
 // const rows = Object.keys()
 
@@ -227,10 +227,10 @@ const sortArrayByTimeStamp = (data) => {
 };
 
 function DataTable() {
-  const [data, setData] = React.useState([]); 
-  const {optionsState, setOptionsState} = useContext(OptionsContext); 
-  const {indexState, setIndexState} = useContext(IndexContext); 
-  const {optionNames, setOptionNames} = useContext(OptionNamesContext);
+  const [data, setData] = React.useState([]);
+  const { optionsState, setOptionsState } = useContext(OptionsContext);
+  const { indexState, setIndexState } = useContext(IndexContext);
+  const { optionNames, setOptionNames } = useContext(OptionNamesContext);
 
   const [optionName, setOptionName] = React.useState("");
   const [expiry, setExpiry] = React.useState("");
@@ -239,27 +239,27 @@ function DataTable() {
   const handleOptionChange = (event) => {
     setOptionName(event.target.value);
   };
-  
+
   const handleExpiryChange = (event) => {
     setExpiry(event.target.value);
-    setStrikePrice('');
+    setStrikePrice("");
   };
-  
+
   const handleStrikeChange = (event) => {
     setStrikePrice(event.target.value);
-    setExpiry('');
+    setExpiry("");
   };
 
   const handleAddData = (dataArg) => {
     dataArg.map((entry, index) => {
       //getting option name list
-      if (!optionNames.includes(entry.name) ) {
+      if (!optionNames.includes(entry.name)) {
         setOptionNames((prevState) => {
           const newEntry = [...prevState];
           newEntry.push(entry.name);
           return newEntry;
         });
-      } 
+      }
       //getting index list
       if (entry.type == "index") {
         setIndexState((prevState) => {
@@ -267,19 +267,35 @@ function DataTable() {
         });
       } else {
         setOptionsState((prevState) => {
+          console.log("PrevState", prevState);
           const strikePrice = entry.strikePrice;
-          const newEntry = { ...prevState };
-          let temp = newEntry[strikePrice];
-          if (entry.type == "CE") {
-            temp.CE = entry;
-            newEntry[strikePrice].CE = temp.CE;
-          } else if (entry.type == "PE") {
-            temp.PE = entry;
-            newEntry[strikePrice].CE = temp.PE;
+          // let newEntry = {};
+          // ,  [strikePrice]: {CE:{}, PE:{}}
+          let temp = prevState[strikePrice];
+          if (temp) {
+            if (entry.type == "CE") {
+              temp.CE = entry;
+              return { ...prevState, [strikePrice]: temp };
+            } else if (entry.type == "PE") {
+              temp.PE = entry;
+              return { ...prevState, [strikePrice]: temp };
+            } else {
+              console.log("Err: ", entry.type);
+              return { ...prevState };
+            }
           } else {
-            console.log("Err: ", entry.type);
+            if (entry.type == "CE") {
+              return { ...prevState, [strikePrice]: { CE: entry, PE: {} } };
+            } else if (entry.type == "PE") {
+              return { ...prevState, [strikePrice]: { CE: {}, PE: entry } };
+            } else {
+              console.log("Err: ", entry.type);
+              return { ...prevState };
+            }
           }
-          return { newEntry };
+          // console.log(newEntry);
+
+          // return { ...prevState, [strikePrice]: newEntry };
         });
       }
     });
@@ -328,52 +344,59 @@ function DataTable() {
 
   return (
     <>
-  
-    <div className={styles.dropdownContainer}>
-      <FormControl className={styles.dropdown}>
-        <InputLabel>Option Name</InputLabel>
-        <Select value={optionName} onChange={handleOptionChange}>
-          {optionNames.map((optionName) => {
-            return <MenuItem value={optionName}>{optionName}</MenuItem>;
-          })}
-          {/* // <MenuItem value="Option 1">Option 1</MenuItem>
+      <div className={styles.dropdownContainer}>
+        <FormControl className={styles.dropdown}>
+          <InputLabel>Option Name</InputLabel>
+          <Select value={optionName} onChange={handleOptionChange}>
+            {optionNames.map((optionName) => {
+              return <MenuItem value={optionName}>{optionName}</MenuItem>;
+            })}
+            {/* // <MenuItem value="Option 1">Option 1</MenuItem>
           // <MenuItem value="Option 2">Option 2</MenuItem>
           // <MenuItem value="Option 3">Option 3</MenuItem> */}
-        </Select>
-      </FormControl>
+          </Select>
+        </FormControl>
 
-      <FormControl className={styles.dropdown}>
-        <InputLabel>Expiry Date</InputLabel>
-        <Select value={expiry} onChange={handleExpiryChange} disabled={optionName==''}>
-          <MenuItem value="Expiry 1">Expiry 1</MenuItem>
-          <MenuItem value="Expiry 2">Expiry 2</MenuItem>
-          <MenuItem value="Expiry 3">Expiry 3</MenuItem>
-        </Select>
-      </FormControl>
+        <FormControl className={styles.dropdown}>
+          <InputLabel>Expiry Date</InputLabel>
+          <Select
+            value={expiry}
+            onChange={handleExpiryChange}
+            disabled={optionName == ""}
+          >
+            <MenuItem value="Expiry 1">Expiry 1</MenuItem>
+            <MenuItem value="Expiry 2">Expiry 2</MenuItem>
+            <MenuItem value="Expiry 3">Expiry 3</MenuItem>
+          </Select>
+        </FormControl>
 
-      <FormControl className={styles.dropdown}>
-        <InputLabel>Strike Price</InputLabel>
-        <Select value={strikePrice} onChange={handleStrikeChange} disabled={optionName==''}>
-          <MenuItem value="Strike 1">Strike 1</MenuItem>
-          <MenuItem value="Strike 2">Strike 2</MenuItem>
-          <MenuItem value="Strike 3">Strike 3</MenuItem>
-        </Select>
-      </FormControl>
-    </div>
-    <section id="MarketData">
-      <Heading index="01" heading="Option Chain (Equity Derivatives)" />
+        <FormControl className={styles.dropdown}>
+          <InputLabel>Strike Price</InputLabel>
+          <Select
+            value={strikePrice}
+            onChange={handleStrikeChange}
+            disabled={optionName == ""}
+          >
+            <MenuItem value="Strike 1">Strike 1</MenuItem>
+            <MenuItem value="Strike 2">Strike 2</MenuItem>
+            <MenuItem value="Strike 3">Strike 3</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
+      <section id="MarketData">
+        <Heading index="01" heading="Option Chain (Equity Derivatives)" />
 
-      {/* <div className={styles.tableContainer}> */}
-      <Paper style={{ height: 1000, width: "100%" }}>
-        <TableVirtuoso
-          data={rows}
-          components={VirtuosoTableComponents}
-          fixedHeaderContent={fixedHeaderContent}
-          itemContent={rowContent}
-        />
-      </Paper>
-      {/* </div> */}
-    </section>
+        {/* <div className={styles.tableContainer}> */}
+        <Paper style={{ height: 1000, width: "100%" }}>
+          <TableVirtuoso
+            data={rows}
+            components={VirtuosoTableComponents}
+            fixedHeaderContent={fixedHeaderContent}
+            itemContent={rowContent}
+          />
+        </Paper>
+        {/* </div> */}
+      </section>
     </>
   );
 }

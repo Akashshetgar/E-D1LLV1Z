@@ -12,3 +12,4 @@ function Heading({ index, heading }) {
 }
 
 export default Heading;
+

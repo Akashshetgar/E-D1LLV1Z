@@ -12,8 +12,8 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { TableVirtuoso } from "react-virtuoso";
-import { useEffect } from 'react';
-import { socket } from '../../socket.js';
+import { useEffect } from "react";
+import { socket } from "../../socket.js";
 import { useContext } from "react";
 import { OptionsContext } from "../../contexts/OptionsContext";
 import { IndexContext } from "../../contexts/IndexContext";
@@ -60,6 +60,9 @@ const columns = [
   { label: "CHNG IN OI", dataKey: "chngoi2", numeric: true },
   { label: "OI", dataKey: "oi2", numeric: true },
 ];
+
+
+// const rows = Object.keys()
 
 const rows = Array.from({ length: 50 }, (_, index) => {
   const randomSelection = sample[Math.floor(Math.random() * sample.length)];
@@ -221,52 +224,61 @@ const sortArrayByTimeStamp = (data) => {
   return sortedArray;
 };
 
-function DataTable() {
-  const [data, setData] = React.useState([]); 
-  const {optionsState, setOptionsState} = useContext(OptionsContext); 
-  const {indexState, setIndexState} = useContext(IndexContext); 
+const DataTable= () => {
+  const [data, setData] = React.useState([]);
+  const { optionsState, setOptionsState } = useContext(OptionsContext);
+  const { indexState, setIndexState } = useContext(IndexContext);
 
   const handleAddData = (dataArg) => {
     dataArg.map((entry, index) => {
-      if (entry.type=="index") {
-        setIndexState((prevState)=>{
-          return {...prevState, [entry.index]: entry}   // Do something about prev LTP
-        })
-      }else{
-        setOptionsState((prevState)=>{
+      if (entry.type == "index") {
+        setIndexState((prevState) => {
+          return { ...prevState, [entry.index]: entry }; // Do something about prev LTP
+        });
+      } else {
+        setOptionsState((prevState) => {
           const strikePrice = entry.strikePrice;
-          const newEntry = {...prevState}
-          if(entry.type=="CE"){
-            let temp = newEntry[strikePrice]
-            temp.CE = entry
+          const newEntry = { ...prevState };
+          let temp = newEntry[strikePrice];
+          if (entry.type == "CE") {
+            temp.CE = entry;
+            newEntry[strikePrice].CE = temp.CE;
+          } else if (entry.type == "PE") {
+            temp.PE = entry;
+            newEntry[strikePrice].CE = temp.PE;
+          } else {
+            console.log("Err: ", entry.type);
           }
-          return {newEntry}
-
-          
-        })
+          return { newEntry };
+        });
       }
-    })
+    });
 
 
-    const newData = [...data];
-    newData.push(dataArg);
-    setData(newData);
-  }
+    // {
+      //  sp1: {CE: {}, PE: {}}
+// 
+    // }
+
+    // const newData = [...data];
+    // newData.push(dataArg);
+    // setData(newData);
+  };
 
   useEffect(() => {
-
-    socket.on('connection', ()=>console.log('connected socket : ', socket.id));
+    socket.on("connection", () =>
+      console.log("connected socket : ", socket.id)
+    );
 
     console.log(socket.connected);
-    socket.on('data', (data) => {
-      if (data.length > 0){
+    socket.on("data", (data) => {
+      if (data.length > 0) {
         handleAddData(data);
-        console.log('Received data from server:', data);
+        console.log("Received data from server:", data);
       }
-      
     });
-    
-    socket.on('disconnect', ()=>console.log('disconnected socket'));
+
+    socket.on("disconnect", () => console.log("disconnected socket"));
 
     // Clean up the socket connection when component unmounts
     // return () => {
@@ -286,7 +298,7 @@ function DataTable() {
     }
   }, [data]);
 
-  let testArray = filterArray('name', "MAINIDX", data);
+  let testArray = filterArray("name", "MAINIDX", data);
   testArray = sortArrayByTimeStamp(testArray, data);
   console.log("Data being sorted");
 
